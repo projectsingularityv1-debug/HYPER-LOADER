@@ -43,11 +43,7 @@ local _getcustomasset = (typeof(getcustomasset) == "function" and getcustomasset
 local _request = (typeof(request) == "function" and request) or (typeof(http_request) == "function" and http_request) or (typeof(syn) == "table" and syn and syn.request) or nil
 
 -- Ensure cache directory exists
-if _makefolder then
-	pcall(function()
-		if not (_isfolder and _isfolder("HYPER_Cache")) and not (_isfile and _isfile("HYPER_Cache")) then
-			_makefolder("HYPER_Cache")
-		end
+-- In-memory operation (no disk caching)
 	end)
 end
 
@@ -55,45 +51,12 @@ end
 local function CacheImage(url)
 	if typeof(url) ~= "string" or url == "" then return url or "" end
 
-	-- Native Roblox assets return directly (0ms, zero network lag)
 	if url:match("^rbxassetid://") or url:match("^rbxthumb://") or url:match("^rbxasset://") or url:match("^http://www.roblox.com/asset/%?id=") then
 		return url
 	end
 
-	-- Pure numeric IDs return as rbxassetid
 	if tonumber(url) then
 		return "rbxassetid://" .. url
-	end
-
-	-- Web URLs (http:// or https://)
-	if url:match("^https?://") then
-		if not _writefile or not _getcustomasset then return url end
-
-		local fileId = url:match("%d+") or tostring(url):gsub("[^%w]", ""):sub(-20)
-		local fileName = "HYPER_Cache/" .. fileId .. ".png"
-
-		if _isfile and _isfile(fileName) then
-			local customOk, customAsset = pcall(function() return _getcustomasset(fileName) end)
-			if customOk and customAsset then
-				return customAsset
-			end
-		end
-
-		-- Background download so UI never hangs
-		task.spawn(function()
-			local ok, imgData = pcall(function()
-				if _request then
-					local res = _request({Url = url, Method = "GET"})
-					if res and res.StatusCode == 200 then return res.Body end
-				end
-				return game:HttpGet(url)
-			end)
-			if ok and imgData and #imgData > 0 then
-				pcall(function() _writefile(fileName, imgData) end)
-			end
-		end)
-
-		return url
 	end
 
 	return url
@@ -401,77 +364,79 @@ local themes = {
 		}
 	},
 	Amethyst = {
-		['Shadow'] = Color3.fromRGB(24, 24, 31),
-		['Background'] = Color3.fromRGB(29, 28, 38),
-		['Page'] = Color3.fromRGB(24, 24, 31),
-		['Main'] = Color3.fromRGB(91, 68, 209),
-		['Text & Icon'] = Color3.fromRGB(255, 255, 255),
+		['Shadow'] = Color3.fromRGB(8, 8, 8),
+		['Background'] = Color3.fromRGB(15, 15, 15),
+		['Page'] = Color3.fromRGB(22, 22, 22),
+		['Main'] = Color3.fromRGB(255, 255, 255),
+		['Text'] = Color3.fromRGB(255, 255, 255),
+		['Icon'] = Color3.fromRGB(255, 255, 255),
+		['Text & Icon'] = Color3.fromRGB(235, 235, 235),
 		['Function'] = {
 			['Toggle'] = {
-				['Background'] = Color3.fromRGB(29, 28, 38),
+				['Background'] = Color3.fromRGB(25, 25, 25),
 				['True'] = {
-					['Toggle Background'] = Color3.fromRGB(44, 34, 103),
-					['Toggle Value'] = Color3.fromRGB(91, 68, 209),
+					['Toggle Background'] = Color3.fromRGB(255, 255, 255),
+					['Toggle Value'] = Color3.fromRGB(20, 20, 20),
 				},
 				['False'] = {
-					['Toggle Background'] = Color3.fromRGB(36, 35, 48),
-					['Toggle Value'] = Color3.fromRGB(44, 42, 62),
+					['Toggle Background'] = Color3.fromRGB(35, 35, 35),
+					['Toggle Value'] = Color3.fromRGB(60, 60, 60),
 				}
 			},
 			['Label'] = {
-				['Background'] = Color3.fromRGB(29, 28, 38),
+				['Background'] = Color3.fromRGB(25, 25, 25),
 			},
 			['Dropdown'] = {
-				['Background'] = Color3.fromRGB(29, 28, 38),
-				['Value Background'] = Color3.fromRGB(24, 24, 31),
-				['Value Stroke'] = Color3.fromRGB(255, 255, 255),
+				['Background'] = Color3.fromRGB(25, 25, 25),
+				['Value Background'] = Color3.fromRGB(18, 18, 18),
+				['Value Stroke'] = Color3.fromRGB(55, 55, 55),
 				['Dropdown Select'] = {
-					['Background'] = Color3.fromRGB(24, 24, 31),
-					['Search'] = Color3.fromRGB(35, 35, 42),
-					['Item Background'] = Color3.fromRGB(45, 45, 52),
+					['Background'] = Color3.fromRGB(18, 18, 18),
+					['Search'] = Color3.fromRGB(28, 28, 28),
+					['Item Background'] = Color3.fromRGB(28, 28, 28),
 				}
 			},
 			['Slider'] = {
-				['Background'] = Color3.fromRGB(29, 28, 38),
-				['Value Background'] = Color3.fromRGB(24, 24, 31),
-				['Value Stroke'] = Color3.fromRGB(255, 255, 255),
-				['Slider Bar'] = Color3.fromRGB(44, 34, 103),
-				['Slider Bar Value'] = Color3.fromRGB(91, 68, 209),
+				['Background'] = Color3.fromRGB(25, 25, 25),
+				['Value Background'] = Color3.fromRGB(18, 18, 18),
+				['Value Stroke'] = Color3.fromRGB(55, 55, 55),
+				['Slider Bar'] = Color3.fromRGB(45, 45, 45),
+				['Slider Bar Value'] = Color3.fromRGB(255, 255, 255),
 				['Circle Value'] = Color3.fromRGB(255, 255, 255)
 			},
 			['Code'] = {
-				['Background'] = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(29, 28, 38)), ColorSequenceKeypoint.new(1, Color3.fromRGB(29, 28, 38))},
-				['Background Code'] = Color3.fromRGB(51, 62, 68),
-				['Background Code Value'] = Color3.fromRGB(38, 50, 56),
-				['ScrollingFrame Code'] = Color3.fromRGB(216, 150, 179)
+				['Background'] = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 25, 25)), ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 25))},
+				['Background Code'] = Color3.fromRGB(32, 32, 32),
+				['Background Code Value'] = Color3.fromRGB(20, 20, 20),
+				['ScrollingFrame Code'] = Color3.fromRGB(220, 220, 220)
 			},
 			['Button'] = {
-				['Background'] = Color3.fromRGB(29, 28, 38),
+				['Background'] = Color3.fromRGB(25, 25, 25),
 				['Click'] = Color3.fromRGB(255, 255, 255)
 			},
 			['Textbox'] = {
-				['Background'] = Color3.fromRGB(29, 28, 38),
-				['Value Background'] = Color3.fromRGB(24, 24, 31),
-				['Value Stroke'] = Color3.fromRGB(255, 255, 255),
+				['Background'] = Color3.fromRGB(25, 25, 25),
+				['Value Background'] = Color3.fromRGB(18, 18, 18),
+				['Value Stroke'] = Color3.fromRGB(55, 55, 55),
 			},
 			['Keybind'] = {
-				['Background'] = Color3.fromRGB(29, 28, 38),
-				['Value Background'] = Color3.fromRGB(24, 24, 31),
-				['Value Stroke'] = Color3.fromRGB(255, 255, 255),
+				['Background'] = Color3.fromRGB(25, 25, 25),
+				['Value Background'] = Color3.fromRGB(18, 18, 18),
+				['Value Stroke'] = Color3.fromRGB(55, 55, 55),
 				['True'] = {
-					['Toggle Background'] = Color3.fromRGB(44, 34, 103),
-					['Toggle Value'] = Color3.fromRGB(91, 68, 209),
+					['Toggle Background'] = Color3.fromRGB(65, 65, 65),
+					['Toggle Value'] = Color3.fromRGB(255, 255, 255),
 				},
 				['False'] = {
-					['Toggle Background'] = Color3.fromRGB(36, 35, 48),
-					['Toggle Value'] = Color3.fromRGB(44, 42, 62),
+					['Toggle Background'] = Color3.fromRGB(35, 35, 35),
+					['Toggle Value'] = Color3.fromRGB(55, 55, 55),
 				}
 			},
 			['Color Picker'] = {
-				['Background'] = Color3.fromRGB(29, 28, 38),
+				['Background'] = Color3.fromRGB(25, 25, 25),
 				['Color Select'] = {
-					['Background'] = Color3.fromRGB(24, 24, 31),
-					['UIStroke'] = Color3.fromRGB(255, 255, 255),
+					['Background'] = Color3.fromRGB(18, 18, 18),
+					['UIStroke'] = Color3.fromRGB(55, 55, 55),
 				}
 			}
 		}
@@ -531,7 +496,7 @@ local themes = {
 				['Background'] = Color3.fromRGB(25, 25, 25),
 				['Value Background'] = Color3.fromRGB(18, 18, 18),
 				['Value Stroke'] = Color3.fromRGB(55, 55, 55),
-			},
+				},
 			['Keybind'] = {
 				['Background'] = Color3.fromRGB(25, 25, 25),
 				['Value Background'] = Color3.fromRGB(18, 18, 18),
@@ -838,9 +803,7 @@ do
 					if fn then
 						local mod = fn()
 						if type(mod) == "table" and mod.GetIcon then
-							if _writefile then
-								pcall(function() _writefile("HYPER_Cache/icon.lua", resHttp) end)
-							end
+							-- in-memory only
 							return mod
 						end
 					end
@@ -1790,7 +1753,7 @@ function Library:Window(p)
 	local Desc = p.Desc or ''
 	local Version = p.Version or '1.0'
 	local Icon = p.Icon or '112209635962758'
-	local Theme = p.Theme or 'Dark'
+	local Theme = (p.Theme == 'Amethyst' or not p.Theme or p.Theme == '') and 'Dark' or p.Theme
 	local Keybind = p.Config.Keybind or Enum.KeyCode.LeftControl
 	local Size = p.Config.Size or UDim2.new(0, 530,0, 400)
 	local TabWidth = p.TabWidth or 150
@@ -1812,8 +1775,8 @@ function Library:Window(p)
 
 	local R, HAA = false, false
 	local CrumbOrientation = "Bottom"
-	local HasChangeTheme = p.Theme or 'Dark'
-	local IsTheme = p.Theme or 'Dark'
+	local HasChangeTheme = Theme
+	local IsTheme = Theme
 
 	local Shadow_1 = Instance.new("ImageLabel")
 	local UIPadding_1 = Instance.new("UIPadding")
