@@ -1,3 +1,8 @@
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+--  Anti-Detection Bypass Layer (Dex-style)
+--  Randomized names, cloneref services, gethui/protectgui hiding
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+
 
 local _cloneref = (typeof(cloneref) == "function" and cloneref) or function(...) return ... end
 local _gethui = (typeof(gethui) == "function" and gethui) or (typeof(get_hidden_gui) == "function" and get_hidden_gui) or nil
@@ -472,23 +477,23 @@ local themes = {
 		}
 	},
 	Dark = {
-		['Shadow'] = Color3.fromRGB(15, 15, 15),
-		['Background'] = Color3.fromRGB(20, 20, 20),
-		['Page'] = Color3.fromRGB(18, 18, 18),
-		['Main'] = Color3.fromRGB(50, 50, 50),
+		['Shadow'] = Color3.fromRGB(8, 8, 8),
+		['Background'] = Color3.fromRGB(15, 15, 15),
+		['Page'] = Color3.fromRGB(22, 22, 22),
+		['Main'] = Color3.fromRGB(255, 255, 255),
 		['Text'] = Color3.fromRGB(255, 255, 255),
-		['Icon'] = Color3.fromRGB(255, 128, 0),
-		['Text & Icon'] = Color3.fromRGB(230, 230, 230),
+		['Icon'] = Color3.fromRGB(255, 255, 255),
+		['Text & Icon'] = Color3.fromRGB(235, 235, 235),
 		['Function'] = {
 			['Toggle'] = {
 				['Background'] = Color3.fromRGB(25, 25, 25),
 				['True'] = {
-					['Toggle Background'] = Color3.fromRGB(40, 40, 40),
-					['Toggle Value'] = Color3.fromRGB(255, 128, 0),
+					['Toggle Background'] = Color3.fromRGB(255, 255, 255),
+					['Toggle Value'] = Color3.fromRGB(20, 20, 20),
 				},
 				['False'] = {
-					['Toggle Background'] = Color3.fromRGB(30, 30, 30),
-					['Toggle Value'] = Color3.fromRGB(40, 40, 40),
+					['Toggle Background'] = Color3.fromRGB(35, 35, 35),
+					['Toggle Value'] = Color3.fromRGB(60, 60, 60),
 				}
 			},
 			['Label'] = {
@@ -496,55 +501,55 @@ local themes = {
 			},
 			['Dropdown'] = {
 				['Background'] = Color3.fromRGB(25, 25, 25),
-				['Value Background'] = Color3.fromRGB(20, 20, 20),
-				['Value Stroke'] = Color3.fromRGB(230, 230, 230),
+				['Value Background'] = Color3.fromRGB(18, 18, 18),
+				['Value Stroke'] = Color3.fromRGB(55, 55, 55),
 				['Dropdown Select'] = {
-					['Background'] = Color3.fromRGB(20, 20, 20),
-					['Search'] = Color3.fromRGB(30, 30, 30),
-					['Item Background'] = Color3.fromRGB(30, 30, 30),
+					['Background'] = Color3.fromRGB(18, 18, 18),
+					['Search'] = Color3.fromRGB(28, 28, 28),
+					['Item Background'] = Color3.fromRGB(28, 28, 28),
 				}
 			},
 			['Slider'] = {
 				['Background'] = Color3.fromRGB(25, 25, 25),
-				['Value Background'] = Color3.fromRGB(20, 20, 20),
-				['Value Stroke'] = Color3.fromRGB(230, 230, 230),
-				['Slider Bar'] = Color3.fromRGB(40, 40, 40),
-				['Slider Bar Value'] = Color3.fromRGB(255, 128, 0),
+				['Value Background'] = Color3.fromRGB(18, 18, 18),
+				['Value Stroke'] = Color3.fromRGB(55, 55, 55),
+				['Slider Bar'] = Color3.fromRGB(45, 45, 45),
+				['Slider Bar Value'] = Color3.fromRGB(255, 255, 255),
 				['Circle Value'] = Color3.fromRGB(255, 255, 255)
 			},
 			['Code'] = {
 				['Background'] = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 25, 25)), ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 25))},
-				['Background Code'] = Color3.fromRGB(35, 35, 35),
-				['Background Code Value'] = Color3.fromRGB(28, 28, 28),
-				['ScrollingFrame Code'] = Color3.fromRGB(150, 150, 150)
+				['Background Code'] = Color3.fromRGB(32, 32, 32),
+				['Background Code Value'] = Color3.fromRGB(20, 20, 20),
+				['ScrollingFrame Code'] = Color3.fromRGB(220, 220, 220)
 			},
 			['Button'] = {
 				['Background'] = Color3.fromRGB(25, 25, 25),
-				['Click'] = Color3.fromRGB(230, 230, 230)
+				['Click'] = Color3.fromRGB(255, 255, 255)
 			},
 			['Textbox'] = {
 				['Background'] = Color3.fromRGB(25, 25, 25),
-				['Value Background'] = Color3.fromRGB(20, 20, 20),
-				['Value Stroke'] = Color3.fromRGB(230, 230, 230),
+				['Value Background'] = Color3.fromRGB(18, 18, 18),
+				['Value Stroke'] = Color3.fromRGB(55, 55, 55),
 			},
 			['Keybind'] = {
 				['Background'] = Color3.fromRGB(25, 25, 25),
-				['Value Background'] = Color3.fromRGB(20, 20, 20),
-				['Value Stroke'] = Color3.fromRGB(230, 230, 230),
+				['Value Background'] = Color3.fromRGB(18, 18, 18),
+				['Value Stroke'] = Color3.fromRGB(55, 55, 55),
 				['True'] = {
-					['Toggle Background'] = Color3.fromRGB(40, 40, 40),
-					['Toggle Value'] = Color3.fromRGB(255, 128, 0),
+					['Toggle Background'] = Color3.fromRGB(65, 65, 65),
+					['Toggle Value'] = Color3.fromRGB(255, 255, 255),
 				},
 				['False'] = {
-					['Toggle Background'] = Color3.fromRGB(30, 30, 30),
-					['Toggle Value'] = Color3.fromRGB(40, 40, 40),
+					['Toggle Background'] = Color3.fromRGB(35, 35, 35),
+					['Toggle Value'] = Color3.fromRGB(55, 55, 55),
 				}
 			},
 			['Color Picker'] = {
 				['Background'] = Color3.fromRGB(25, 25, 25),
 				['Color Select'] = {
-					['Background'] = Color3.fromRGB(20, 20, 20),
-					['UIStroke'] = Color3.fromRGB(230, 230, 230),
+					['Background'] = Color3.fromRGB(18, 18, 18),
+					['UIStroke'] = Color3.fromRGB(55, 55, 55),
 				}
 			}
 		}
@@ -1090,7 +1095,7 @@ do
 
 		Background.Name = "Background"
 		Background.Parent = RealBackground
-		Background.BackgroundColor3 = Color3.fromRGB(29,28,38)
+		Background.BackgroundColor3 = Color3.fromRGB(25,25,25)
 		Background.BorderColor3 = Color3.fromRGB(0,0,0)
 		Background.BorderSizePixel = 0
 		Background.Size = UDim2.new(1, 0,1, 0)
@@ -1286,7 +1291,7 @@ do
 		UIPadding_1.PaddingRight = UDim.new(0,13)
 
 		DropdownValue.Parent = F
-		DropdownValue.BackgroundColor3 = Color3.fromRGB(24,24,31)
+		DropdownValue.BackgroundColor3 = Color3.fromRGB(18,18,18)
 		DropdownValue.BorderColor3 = Color3.fromRGB(0,0,0)
 		DropdownValue.BorderSizePixel = 0
 		DropdownValue.Size = UDim2.new(0, 100,0, 20)
@@ -1356,7 +1361,7 @@ do
 		local UIPadding_4 = Instance.new("UIPadding")
 
 		DropdownSelect.Parent = ScreenGui
-		DropdownSelect.BackgroundColor3 = Color3.fromRGB(24,24,31)
+		DropdownSelect.BackgroundColor3 = Color3.fromRGB(18,18,18)
 		DropdownSelect.BorderColor3 = Color3.fromRGB(0,0,0)
 		DropdownSelect.BorderSizePixel = 0
 		DropdownSelect.Size = UDim2.new(0, 150,0, 0)
@@ -1807,8 +1812,8 @@ function Library:Window(p)
 
 	local R, HAA = false, false
 	local CrumbOrientation = "Bottom"
-	local HasChangeTheme = p.Theme
-	local IsTheme = p.Theme
+	local HasChangeTheme = p.Theme or 'Dark'
+	local IsTheme = p.Theme or 'Dark'
 
 	local Shadow_1 = Instance.new("ImageLabel")
 	local UIPadding_1 = Instance.new("UIPadding")
@@ -1855,7 +1860,7 @@ function Library:Window(p)
 	Shadow_1.Position = UDim2.new(0.5, 0,0.5, 0)
 	Shadow_1.Size = Size
 	Shadow_1.Image = CacheImage("rbxassetid://1316045217")
-	Shadow_1.ImageColor3 = Color3.fromRGB(24, 24, 31)
+	Shadow_1.ImageColor3 = Color3.fromRGB(8, 8, 8)
 	Shadow_1.ImageTransparency = 0.8
 	Shadow_1.ScaleType = Enum.ScaleType.Slice
 	Shadow_1.SliceCenter = Rect.new(10, 10, 118, 118)
@@ -1872,7 +1877,7 @@ function Library:Window(p)
 	Background_1.Name = "Background"
 	Background_1.Parent = Shadow_1
 	Background_1.AnchorPoint = Vector2.new(0.5, 0.5)
-	Background_1.BackgroundColor3 = Color3.fromRGB(29, 28, 38)
+	Background_1.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 	Background_1.BorderColor3 = Color3.fromRGB(0,0,0)
 	Background_1.BorderSizePixel = 0
 	Background_1.Position = UDim2.new(0.5, 0,0.5, 0)
@@ -1958,7 +1963,7 @@ function Library:Window(p)
 
 	Frame_5.Parent = Topbar_1
 	Frame_5.AnchorPoint = Vector2.new(0, 1)
-	Frame_5.BackgroundColor3 = Color3.fromRGB(24,24,31)
+	Frame_5.BackgroundColor3 = Color3.fromRGB(20,20,20)
 	Frame_5.BackgroundTransparency = 1
 	Frame_5.BorderColor3 = Color3.fromRGB(0,0,0)
 	Frame_5.BorderSizePixel = 0
@@ -2051,7 +2056,7 @@ function Library:Window(p)
 	DropdownValue_1.Name = "DropdownValue"
 	DropdownValue_1.Parent = Ct_1
 	DropdownValue_1.AnchorPoint = Vector2.new(1, 0.5)
-	DropdownValue_1.BackgroundColor3 = Color3.fromRGB(24,24,31)
+	DropdownValue_1.BackgroundColor3 = Color3.fromRGB(20,20,20)
 	DropdownValue_1.BorderColor3 = Color3.fromRGB(0,0,0)
 	DropdownValue_1.BorderSizePixel = 0
 	DropdownValue_1.Position = UDim2.new(1, 0,0.5, 0)
@@ -2183,7 +2188,7 @@ function Library:Window(p)
 	ScrollingFrame_2.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
 	ScrollingFrame_2.HorizontalScrollBarInset = Enum.ScrollBarInset.None
 	ScrollingFrame_2.MidImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
-	ScrollingFrame_2.ScrollBarImageColor3 = Color3.fromRGB(91,68,209)
+	ScrollingFrame_2.ScrollBarImageColor3 = Color3.fromRGB(255,255,255)
 	ScrollingFrame_2.ScrollBarImageTransparency = 0
 	ScrollingFrame_2.ScrollBarThickness = 2
 	ScrollingFrame_2.ScrollingDirection = Enum.ScrollingDirection.XY
@@ -2207,7 +2212,7 @@ function Library:Window(p)
 
 	Select_1.Name = "Select"
 	Select_1.Parent = ScrollingFrame_2
-	Select_1.BackgroundColor3 = Color3.fromRGB(91,68,209)
+	Select_1.BackgroundColor3 = Color3.fromRGB(255,255,255)
 	Select_1.BorderColor3 = Color3.fromRGB(0,0,0)
 	Select_1.BorderSizePixel = 0
 	Select_1.Position = UDim2.new(0, 0,0, 5)
@@ -2219,7 +2224,7 @@ function Library:Window(p)
 	UICorner_10.CornerRadius = UDim.new(1,0)
 
 	UIStroke_3.Parent = Select_1
-	UIStroke_3.Color = Color3.fromRGB(24,24,31)
+	UIStroke_3.Color = Color3.fromRGB(45,45,45)
 	UIStroke_3.Thickness = 1
 	UIStroke_3.Transparency = 0.9
 
@@ -2245,7 +2250,7 @@ function Library:Window(p)
 		Profile_Container.AnchorPoint = Vector2.new(0, 1)
 		Profile_Container.Position = UDim2.new(0, 5, 1, -5)
 		Profile_Container.Size = UDim2.new(1, -10, 0, 45)
-		Profile_Container.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+		Profile_Container.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
 		Profile_Container.BackgroundTransparency = 0
 		
 		local Profile_Corner = Instance.new("UICorner", Profile_Container)
@@ -2357,10 +2362,10 @@ function Library:Window(p)
 		Profile_Email.TextXAlignment = Enum.TextXAlignment.Left
 		
 		addToTheme('Text & Icon', Profile_Name)
-		addToTheme('Main', Profile_Container)
+		addToTheme('Page', Profile_Container)
 		
 		-- Override container color to look nicer for profile
-		Profile_Container.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+		Profile_Container.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
 		Profile_Container.BackgroundTransparency = 0.5
 	end
 
@@ -2524,7 +2529,7 @@ function Library:Window(p)
 		UIPadding_14.PaddingLeft = UDim.new(0, Tabs.IsCollapsed and 16 or 8)
 
 		UIStroke_2.Parent = Title_3
-		UIStroke_2.Color = Color3.fromRGB(24,24,31)
+		UIStroke_2.Color = Color3.fromRGB(45,45,45)
 		UIStroke_2.Thickness = 1
 		UIStroke_2.Transparency = 0.95
 
@@ -2537,7 +2542,7 @@ function Library:Window(p)
 		InPage_1.Name = "InPage"
 		InPage_1.Parent = Page_1
 		InPage_1.AnchorPoint = Vector2.new(0.5 ,0.5)
-		InPage_1.BackgroundColor3 = Color3.fromRGB(24,24,31)
+		InPage_1.BackgroundColor3 = Color3.fromRGB(22,22,22)
 		InPage_1.BorderColor3 = Color3.fromRGB(0,0,0)
 		InPage_1.BorderSizePixel = 0
 		InPage_1.Size = UDim2.new(1, 0,1, 0)
@@ -3169,7 +3174,7 @@ function Library:Window(p)
 
 			FrameValueTextBox.Parent = F
 			FrameValueTextBox.Active = true
-			FrameValueTextBox.BackgroundColor3 = Color3.fromRGB(24,24,31)
+			FrameValueTextBox.BackgroundColor3 = Color3.fromRGB(18,18,18)
 			FrameValueTextBox.BorderColor3 = Color3.fromRGB(0,0,0)
 			FrameValueTextBox.BorderSizePixel = 0
 			FrameValueTextBox.Size = UDim2.new(0, 50,0, 20)
@@ -3212,7 +3217,7 @@ function Library:Window(p)
 
 			Frame_2.Parent = Frame_1
 			Frame_2.AnchorPoint = Vector2.new(0.5, 0.5)
-			Frame_2.BackgroundColor3 = Color3.fromRGB(44,34,103)
+			Frame_2.BackgroundColor3 = Color3.fromRGB(45,45,45)
 			Frame_2.BorderColor3 = Color3.fromRGB(0,0,0)
 			Frame_2.BorderSizePixel = 0
 			Frame_2.Position = UDim2.new(0.5, 0,0.5, 0)
@@ -3225,7 +3230,7 @@ function Library:Window(p)
 
 			Frame_3.Parent = Frame_2
 			Frame_3.AnchorPoint = Vector2.new(0, 0.5)
-			Frame_3.BackgroundColor3 = Color3.fromRGB(91,68,209)
+			Frame_3.BackgroundColor3 = Color3.fromRGB(255,255,255)
 			Frame_3.BorderColor3 = Color3.fromRGB(0,0,0)
 			Frame_3.BorderSizePixel = 0
 			Frame_3.Position = UDim2.new(0, 0,0.5, 0)
@@ -3623,7 +3628,7 @@ function Library:Window(p)
 
 			UIGradient_1.Parent = Code
 			--UIGradient_1.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(216, 150, 179)), ColorSequenceKeypoint.new(1, Color3.fromRGB(105, 81, 164))}
-			UIGradient_1.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(29, 28, 38)), ColorSequenceKeypoint.new(1, Color3.fromRGB(29, 28, 38))}
+			UIGradient_1.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 25, 25)), ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 25))}
 			UIGradient_1.Rotation = 45
 
 			addToTheme('Function.Code.Background', UIGradient_1)
@@ -3998,7 +4003,7 @@ function Library:Window(p)
 
 			ToggleValue_1.Name = "ToggleValue"
 			ToggleValue_1.Parent = F
-			ToggleValue_1.BackgroundColor3 = Color3.fromRGB(44,34,103)
+			ToggleValue_1.BackgroundColor3 = Color3.fromRGB(65,65,65)
 			ToggleValue_1.BorderColor3 = Color3.fromRGB(0,0,0)
 			ToggleValue_1.BorderSizePixel = 0
 			ToggleValue_1.LayoutOrder = 1
@@ -4010,7 +4015,7 @@ function Library:Window(p)
 
 			Frame_1.Parent = ToggleValue_1
 			Frame_1.AnchorPoint = Vector2.new(1, 0.5)
-			Frame_1.BackgroundColor3 = Color3.fromRGB(91,68,209)
+			Frame_1.BackgroundColor3 = Color3.fromRGB(255,255,255)
 			Frame_1.BorderColor3 = Color3.fromRGB(0,0,0)
 			Frame_1.BorderSizePixel = 0
 			Frame_1.Position = UDim2.new(1, 0,0.5, 0)
@@ -4027,7 +4032,7 @@ function Library:Window(p)
 
 			KeybindValue_1.Name = "KeybindValue"
 			KeybindValue_1.Parent = F
-			KeybindValue_1.BackgroundColor3 = Color3.fromRGB(24,24,31)
+			KeybindValue_1.BackgroundColor3 = Color3.fromRGB(18,18,18)
 			KeybindValue_1.BorderColor3 = Color3.fromRGB(0,0,0)
 			KeybindValue_1.BorderSizePixel = 0
 			KeybindValue_1.Size = UDim2.new(0, 30,0, 20)
@@ -4518,7 +4523,7 @@ function Library:Window(p)
 
 			ColorpickBar.Name = "ColorpickBar"
 			ColorpickBar.Parent = ScreenGui
-			ColorpickBar.BackgroundColor3 = Color3.fromRGB(24, 24, 31)
+			ColorpickBar.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
 			ColorpickBar.BorderColor3 = Color3.fromRGB(0,0,0)
 			ColorpickBar.BorderSizePixel = 0
 			ColorpickBar.Size = UDim2.new(0, 120,0, 0)
@@ -5257,7 +5262,7 @@ function Library:Window(p)
 			UIPadding_1.PaddingRight = UDim.new(0,13)
 
 			Frame_1.Parent = F
-			Frame_1.BackgroundColor3 = Color3.fromRGB(24,24,31)
+			Frame_1.BackgroundColor3 = Color3.fromRGB(18,18,18)
 			Frame_1.BorderColor3 = Color3.fromRGB(0,0,0)
 			Frame_1.BorderSizePixel = 0
 			Frame_1.Size = UDim2.new(0, 130,0, 25)
