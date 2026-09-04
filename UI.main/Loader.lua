@@ -1,4 +1,8 @@
-
+-- ==============================================================================
+--  HYPER HUB - Universal Multi-Map Loader 3.0
+--  PandaAuth Licensing Engine (pandauth.com) & Glassmorphic UI
+--  Created by K2NTA ST | Project Singularity
+-- ==============================================================================
 
 local _cloneref = (cloneref or function(...) return ... end)
 local function getService(name)
@@ -17,16 +21,25 @@ local Lighting = getService("Lighting")
 local LocalPlayer = Players.LocalPlayer
 local PlaceId = game.PlaceId
 
+-- ==============================================================================
+-- // Configuration & Themes (Obsidian Black & Neon Purple Glassmorphism)
+-- ==============================================================================
 local Config = {
     BrandName = "HYPER HUB",
     Version = "v3.0",
     LogoID = "rbxassetid://112209635962758",
+
+    -- PandaAuth Service API Configuration (pandauth.com)
     PandaServiceId = "0058594f-3409-4a86-975b-c988368434a9",
     PandaBaseURL = "https://pandauth.com",
     PandaDevBaseURL = "https://pandadevelopment.net",
-    GamesConfigLocal = "",
+
+    -- Game Registry Config Endpoints
+    GamesConfigLocal = "Scripts/UI.main/Games.lua",
     GamesConfigRemote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-LOADER/refs/heads/main/UI.main/Games.lua",
     GamesConfigFallbackRemote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-LOADER/refs/heads/main/UI.main/Games.lua",
+
+    -- Color Palette
     PrimaryColor = Color3.fromRGB(168, 85, 247),       -- Electric Neon Purple
     PrimaryGlow = Color3.fromRGB(216, 180, 254),        -- Lilac Highlight
     DarkBackground = Color3.fromRGB(10, 8, 14),         -- Obsidian Deep
@@ -37,7 +50,11 @@ local Config = {
     TextMuted = Color3.fromRGB(140, 130, 165),          -- Muted Violet
 }
 
+-- ==============================================================================
+-- // Dynamic Game Registry Loader (Loads from standalone Games.lua)
+-- ==============================================================================
 local function loadGameRegistry()
+    -- 1. Try local Games.lua file
     if typeof(isfile) == "function" and typeof(readfile) == "function" then
         local localPaths = {
             Config.GamesConfigLocal,
@@ -61,6 +78,7 @@ local function loadGameRegistry()
         end
     end
 
+    -- 2. Try Remote Games.lua endpoints
     local remoteUrls = {
         Config.GamesConfigRemote,
         Config.GamesConfigFallbackRemote
@@ -87,54 +105,55 @@ local function loadGameRegistry()
         end
     end
 
+    -- 3. Embedded Safety Fallback
     return {
         ["Blox Fruits"] = {
             RequiresKey = true,
             PlaceIds = { 2753915549, 4442272183, 7449423635 },
             Local = "Scripts/M.lua/BF V1",
-            Remote = "https://raw.githubusercontent.com/kentatvv1-tech/Scripts/refs/heads/main/BF%20V1"
+            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/BF%20V1"
         },
         ["Murder Mystery 2"] = {
             RequiresKey = true,
             PlaceIds = { 142823291 },
             Local = "Scripts/M.lua/MM2 DONE.lua",
-            Remote = "https://raw.githubusercontent.com/kentatvv1-tech/Scripts/refs/heads/main/MM2%20DONE.lua"
+            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/MM2%20DONE.lua"
         },
         ["The Walking Dead"] = {
             RequiresKey = true,
             PlaceIds = { 128039018996175 },
             Local = "Scripts/M.lua/TWD V1.lua",
-            Remote = "https://raw.githubusercontent.com/kentatvv1-tech/Scripts/refs/heads/main/TWD%20V1.lua"
+            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/TWD%20V1.lua"
         },
         ["Fisch"] = {
             RequiresKey = true,
             PlaceIds = { 16732694052 },
             Local = "Scripts/M.lua/LK AUTO.lua",
-            Remote = "https://raw.githubusercontent.com/kentatvv1-tech/Scripts/refs/heads/main/LK%20AUTO.lua"
+            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/LK%20AUTO.lua"
         },
         ["Mine a Mountain"] = {
             RequiresKey = false,
             PlaceIds = { 125927821145949 },
             Local = "Scripts/M.lua/fame 222.lua",
-            Remote = "https://raw.githubusercontent.com/kentatvv1-tech/Scripts/refs/heads/main/fame%20222.lua"
+            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/fame%20222.lua"
         },
         ["Laundry Simulator"] = {
             RequiresKey = false,
             PlaceIds = { 6305942109 },
             Local = "Scripts/M.lua/LaundrySimulator_AutoFarm.lua",
-            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/Scripts.xinz/refs/heads/main/LaundrySimulator_AutoFarm.lua"
+            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/LaundrySimulator_AutoFarm.lua"
         },
         ["Cali Shootout"] = {
             RequiresKey = false,
             PlaceIds = { 12077443856 },
             Local = "Scripts/M.lua/gun auto.lua",
-            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/Scripts.xinz/refs/heads/main/gun%20auto.lua"
+            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/gun%20auto.lua"
         },
         ["Basketball"] = {
             RequiresKey = false,
             PlaceIds = { 16033173781, 16270425785 },
             Local = "Scripts/Basketball_XINZ.lua",
-            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/Scripts.xinz/refs/heads/main/Basketball_XINZ.lua"
+            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/Basketball_XINZ.lua"
         }
     }
 end
@@ -156,6 +175,9 @@ pcall(function()
     end
 end)
 
+-- ==============================================================================
+-- // UI Root Setup (Protected GUI / gethui)
+-- ==============================================================================
 local LoaderUI = Instance.new("ScreenGui")
 LoaderUI.Name = "HyperHubLoader"
 LoaderUI.ResetOnSpawn = false
@@ -189,6 +211,9 @@ Overlay.Parent = LoaderUI
 
 TweenService:Create(Overlay, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {BackgroundTransparency = 0.45}):Play()
 
+-- ==============================================================================
+-- // Reusable UI Builder Helpers
+-- ==============================================================================
 local function createCorner(parent, radius)
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, radius or 12)
@@ -256,6 +281,9 @@ local function makeDraggable(frame, dragHandle)
     end)
 end
 
+-- ==============================================================================
+-- // HWID & PandaAuth Verification Logic
+-- ==============================================================================
 local function getHWID()
     local hwid = nil
     pcall(function()
@@ -303,6 +331,7 @@ local function verifyPandaKey(key)
     local rbx_user = (LocalPlayer and LocalPlayer.Name) or "Unknown"
     local rbx_id = (LocalPlayer and LocalPlayer.UserId) or 0
 
+    -- 1. Try PandaAuth Lua Library / SDK if available
     local okLib, resLib = pcall(function()
         local PandaLib = rawget(getgenv(), "PandaAuth") or rawget(getgenv(), "PandaDevelopment")
         if not PandaLib then
@@ -345,6 +374,8 @@ local function verifyPandaKey(key)
             }
         end
     end
+
+    -- 2. Direct HTTP GET / POST to PandaAuth endpoints
     local endpoints = {
         Config.PandaBaseURL .. "/api/v1/stage/validate?service=" .. serviceId .. "&key=" .. key .. "&hwid=" .. hwid,
         Config.PandaDevBaseURL .. "/api/v1/stage/validate?service=" .. serviceId .. "&key=" .. key .. "&hwid=" .. hwid,
@@ -425,7 +456,9 @@ local function verifyPandaKey(key)
     return { valid = false, message = "PandaAuth: Invalid License Key" }
 end
 
-
+-- ==============================================================================
+-- // Game Detection Engine
+-- ==============================================================================
 local function detectCurrentGame()
     local curPlaceId = PlaceId
     for gameName, data in pairs(TargetGames) do
@@ -449,6 +482,9 @@ local function detectCurrentGame()
     return nil, nil
 end
 
+-- ==============================================================================
+-- // CARD 1: KEY AUTHENTICATION WINDOW (PandaAuth UI)
+-- ==============================================================================
 local KeyWindow = Instance.new("Frame")
 KeyWindow.Name = "KeyWindow"
 KeyWindow.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -754,6 +790,9 @@ ClearKeyLink.MouseButton1Click:Connect(function()
     end)
 end)
 
+-- ==============================================================================
+-- // CARD 2: PROGRESSIVE LOADING CARD
+-- ==============================================================================
 local LoadingCard = Instance.new("Frame")
 LoadingCard.Name = "LoadingCard"
 LoadingCard.AnchorPoint = Vector2.new(0.5, 0.5)

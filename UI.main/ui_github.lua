@@ -1794,7 +1794,7 @@ do
 
 		local okHttp, resHttp = pcall(function()
 
-			return game:HttpGet("https://raw.githubusercontent.com/projectsingularityv1-debug/Scripts.xinz/refs/heads/main/lucide.lua")
+			return game:HttpGet("https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-LOADER/refs/heads/main/UI.main/lucide.lua")
 
 		end)
 
@@ -1808,7 +1808,7 @@ do
 
 		local okHttp2, resHttp2 = pcall(function()
 
-			return game:HttpGet("https://raw.githubusercontent.com/projectsingularityv1-debug/Scripts.xinz/refs/heads/main/icon.lua")
+			return game:HttpGet("https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-LOADER/refs/heads/main/UI.main/icon.lua")
 
 		end)
 

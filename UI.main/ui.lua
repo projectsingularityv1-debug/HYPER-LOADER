@@ -1,3 +1,7 @@
+﻿-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+--  Anti-Detection Bypass Layer (Dex-style)
+--  Randomized names, cloneref services, gethui/protectgui hiding
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 
 
 local _cloneref = (typeof(cloneref) == "function" and cloneref) or function(...) return ... end
@@ -818,8 +822,8 @@ do
 
 			-- 2. Try loading directly from your GitHub repositories (with disk caching)
 			local urls = {
-				"https://raw.githubusercontent.com/projectsingularityv1-debug/Scripts.xinz/refs/heads/main/icon.lua",
-				"https://raw.githubusercontent.com/projectsingularityv1-debug/Scripts.xinz/refs/heads/main/lucide.lua"
+				"https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-LOADER/refs/heads/main/UI.main/icon.lua",
+				"https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-LOADER/refs/heads/main/UI.main/lucide.lua"
 			}
 
 			for _, url in ipairs(urls) do

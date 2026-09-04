@@ -23,7 +23,7 @@ local okLoad, resLoad = pcall(function()
         source = "Local workspace/UI.main/ui.lua"
     else
         source = "projectsingularity.online"
-        code = game:HttpGet("https://projectsingularity.online/raw/repos/191c9695-c9f9-4b5f-805f-d87e8e3b8fac/ui.lua?t=" .. tostring(tick()))
+        code = game:HttpGet("https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-LOADER/refs/heads/main/UI.main/ui.lua?t=" .. tostring(tick()))
     end
     
     local func, compileErr = loadstring(code)
