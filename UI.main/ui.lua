@@ -1,8 +1,3 @@
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
---  Anti-Detection Bypass Layer (Dex-style)
---  Randomized names, cloneref services, gethui/protectgui hiding
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
-
 
 local _cloneref = (typeof(cloneref) == "function" and cloneref) or function(...) return ... end
 local _gethui = (typeof(gethui) == "function" and gethui) or (typeof(get_hidden_gui) == "function" and get_hidden_gui) or nil
@@ -400,80 +395,78 @@ local themes = {
 			}
 		}
 	},
-		Amethyst = {
-		['Shadow'] = Color3.fromRGB(10, 8, 14),
-		['Background'] = Color3.fromRGB(18, 15, 26),
-		['Page'] = Color3.fromRGB(13, 11, 18),
-		['Main'] = Color3.fromRGB(155, 89, 245),
-		['Text'] = Color3.fromRGB(255, 255, 255),
-		['Icon'] = Color3.fromRGB(168, 85, 247),
-		['Text & Icon'] = Color3.fromRGB(245, 240, 255),
+	Amethyst = {
+		['Shadow'] = Color3.fromRGB(24, 24, 31),
+		['Background'] = Color3.fromRGB(29, 28, 38),
+		['Page'] = Color3.fromRGB(24, 24, 31),
+		['Main'] = Color3.fromRGB(91, 68, 209),
+		['Text & Icon'] = Color3.fromRGB(255, 255, 255),
 		['Function'] = {
 			['Toggle'] = {
-				['Background'] = Color3.fromRGB(24, 20, 36),
+				['Background'] = Color3.fromRGB(29, 28, 38),
 				['True'] = {
-					['Toggle Background'] = Color3.fromRGB(58, 28, 98),
-					['Toggle Value'] = Color3.fromRGB(168, 85, 247),
+					['Toggle Background'] = Color3.fromRGB(44, 34, 103),
+					['Toggle Value'] = Color3.fromRGB(91, 68, 209),
 				},
 				['False'] = {
-					['Toggle Background'] = Color3.fromRGB(32, 26, 46),
-					['Toggle Value'] = Color3.fromRGB(48, 40, 68),
+					['Toggle Background'] = Color3.fromRGB(36, 35, 48),
+					['Toggle Value'] = Color3.fromRGB(44, 42, 62),
 				}
 			},
 			['Label'] = {
-				['Background'] = Color3.fromRGB(24, 20, 36),
+				['Background'] = Color3.fromRGB(29, 28, 38),
 			},
 			['Dropdown'] = {
-				['Background'] = Color3.fromRGB(24, 20, 36),
-				['Value Background'] = Color3.fromRGB(18, 15, 26),
-				['Value Stroke'] = Color3.fromRGB(140, 70, 240),
+				['Background'] = Color3.fromRGB(29, 28, 38),
+				['Value Background'] = Color3.fromRGB(24, 24, 31),
+				['Value Stroke'] = Color3.fromRGB(255, 255, 255),
 				['Dropdown Select'] = {
-					['Background'] = Color3.fromRGB(18, 15, 26),
-					['Search'] = Color3.fromRGB(28, 22, 42),
-					['Item Background'] = Color3.fromRGB(36, 28, 54),
+					['Background'] = Color3.fromRGB(24, 24, 31),
+					['Search'] = Color3.fromRGB(35, 35, 42),
+					['Item Background'] = Color3.fromRGB(45, 45, 52),
 				}
 			},
 			['Slider'] = {
-				['Background'] = Color3.fromRGB(24, 20, 36),
-				['Value Background'] = Color3.fromRGB(18, 15, 26),
-				['Value Stroke'] = Color3.fromRGB(140, 70, 240),
-				['Slider Bar'] = Color3.fromRGB(48, 22, 85),
-				['Slider Bar Value'] = Color3.fromRGB(168, 85, 247),
+				['Background'] = Color3.fromRGB(29, 28, 38),
+				['Value Background'] = Color3.fromRGB(24, 24, 31),
+				['Value Stroke'] = Color3.fromRGB(255, 255, 255),
+				['Slider Bar'] = Color3.fromRGB(44, 34, 103),
+				['Slider Bar Value'] = Color3.fromRGB(91, 68, 209),
 				['Circle Value'] = Color3.fromRGB(255, 255, 255)
 			},
 			['Code'] = {
-				['Background'] = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(24, 20, 36)), ColorSequenceKeypoint.new(1, Color3.fromRGB(24, 20, 36))},
-				['Background Code'] = Color3.fromRGB(36, 28, 54),
-				['Background Code Value'] = Color3.fromRGB(28, 22, 42),
-				['ScrollingFrame Code'] = Color3.fromRGB(168, 85, 247)
+				['Background'] = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(29, 28, 38)), ColorSequenceKeypoint.new(1, Color3.fromRGB(29, 28, 38))},
+				['Background Code'] = Color3.fromRGB(51, 62, 68),
+				['Background Code Value'] = Color3.fromRGB(38, 50, 56),
+				['ScrollingFrame Code'] = Color3.fromRGB(216, 150, 179)
 			},
 			['Button'] = {
-				['Background'] = Color3.fromRGB(24, 20, 36),
-				['Click'] = Color3.fromRGB(168, 85, 247)
+				['Background'] = Color3.fromRGB(29, 28, 38),
+				['Click'] = Color3.fromRGB(255, 255, 255)
 			},
 			['Textbox'] = {
-				['Background'] = Color3.fromRGB(24, 20, 36),
-				['Value Background'] = Color3.fromRGB(18, 15, 26),
-				['Value Stroke'] = Color3.fromRGB(140, 70, 240),
+				['Background'] = Color3.fromRGB(29, 28, 38),
+				['Value Background'] = Color3.fromRGB(24, 24, 31),
+				['Value Stroke'] = Color3.fromRGB(255, 255, 255),
 			},
 			['Keybind'] = {
-				['Background'] = Color3.fromRGB(24, 20, 36),
-				['Value Background'] = Color3.fromRGB(18, 15, 26),
-				['Value Stroke'] = Color3.fromRGB(140, 70, 240),
+				['Background'] = Color3.fromRGB(29, 28, 38),
+				['Value Background'] = Color3.fromRGB(24, 24, 31),
+				['Value Stroke'] = Color3.fromRGB(255, 255, 255),
 				['True'] = {
-					['Toggle Background'] = Color3.fromRGB(58, 28, 98),
-					['Toggle Value'] = Color3.fromRGB(168, 85, 247),
+					['Toggle Background'] = Color3.fromRGB(44, 34, 103),
+					['Toggle Value'] = Color3.fromRGB(91, 68, 209),
 				},
 				['False'] = {
-					['Toggle Background'] = Color3.fromRGB(32, 26, 46),
-					['Toggle Value'] = Color3.fromRGB(48, 40, 68),
+					['Toggle Background'] = Color3.fromRGB(36, 35, 48),
+					['Toggle Value'] = Color3.fromRGB(44, 42, 62),
 				}
 			},
 			['Color Picker'] = {
-				['Background'] = Color3.fromRGB(24, 20, 36),
+				['Background'] = Color3.fromRGB(29, 28, 38),
 				['Color Select'] = {
-					['Background'] = Color3.fromRGB(18, 15, 26),
-					['UIStroke'] = Color3.fromRGB(140, 70, 240),
+					['Background'] = Color3.fromRGB(24, 24, 31),
+					['UIStroke'] = Color3.fromRGB(255, 255, 255),
 				}
 			}
 		}
@@ -484,14 +477,14 @@ local themes = {
 		['Page'] = Color3.fromRGB(18, 18, 18),
 		['Main'] = Color3.fromRGB(50, 50, 50),
 		['Text'] = Color3.fromRGB(255, 255, 255),
-		['Icon'] = Color3.fromRGB(168, 85, 247),
+		['Icon'] = Color3.fromRGB(255, 128, 0),
 		['Text & Icon'] = Color3.fromRGB(230, 230, 230),
 		['Function'] = {
 			['Toggle'] = {
 				['Background'] = Color3.fromRGB(25, 25, 25),
 				['True'] = {
 					['Toggle Background'] = Color3.fromRGB(40, 40, 40),
-					['Toggle Value'] = Color3.fromRGB(168, 85, 247),
+					['Toggle Value'] = Color3.fromRGB(255, 128, 0),
 				},
 				['False'] = {
 					['Toggle Background'] = Color3.fromRGB(30, 30, 30),
@@ -516,18 +509,18 @@ local themes = {
 				['Value Background'] = Color3.fromRGB(20, 20, 20),
 				['Value Stroke'] = Color3.fromRGB(230, 230, 230),
 				['Slider Bar'] = Color3.fromRGB(40, 40, 40),
-				['Slider Bar Value'] = Color3.fromRGB(168, 85, 247),
+				['Slider Bar Value'] = Color3.fromRGB(255, 128, 0),
 				['Circle Value'] = Color3.fromRGB(255, 255, 255)
 			},
 			['Code'] = {
 				['Background'] = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 25, 25)), ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 25))},
 				['Background Code'] = Color3.fromRGB(35, 35, 35),
 				['Background Code Value'] = Color3.fromRGB(28, 28, 28),
-				['ScrollingFrame Code'] = Color3.fromRGB(168, 85, 247)
+				['ScrollingFrame Code'] = Color3.fromRGB(150, 150, 150)
 			},
 			['Button'] = {
 				['Background'] = Color3.fromRGB(25, 25, 25),
-				['Click'] = Color3.fromRGB(168, 85, 247)
+				['Click'] = Color3.fromRGB(230, 230, 230)
 			},
 			['Textbox'] = {
 				['Background'] = Color3.fromRGB(25, 25, 25),
@@ -540,7 +533,7 @@ local themes = {
 				['Value Stroke'] = Color3.fromRGB(230, 230, 230),
 				['True'] = {
 					['Toggle Background'] = Color3.fromRGB(40, 40, 40),
-					['Toggle Value'] = Color3.fromRGB(168, 85, 247),
+					['Toggle Value'] = Color3.fromRGB(255, 128, 0),
 				},
 				['False'] = {
 					['Toggle Background'] = Color3.fromRGB(30, 30, 30),
@@ -5453,6 +5446,7 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 	UIListLayoutNotification_1.VerticalAlignment = Enum.VerticalAlignment.Bottom
 
 	function Tabs:Notify(p)
+		Tabs.Notification = Tabs.Notify
 		local Title = p.Title or 'Notification'
 		local Desc = p.Desc or ''
 		local Time = p.Time or 5
@@ -6196,7 +6190,7 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 		end)
 
 		do
-			local CloseUI = p.CloseUIButton
+			local CloseUI = p.CloseUIButton or { Enabled = true }
 			local CloseUIEnabled = CloseUI.Enabled
 			if CloseUIEnabled == nil then CloseUIEnabled = true end
 
@@ -6699,8 +6693,17 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 			end
 		})
 
+		Library._lastTabs = Tabs
 		return Tabs
 end
+
+
+function Library:Notify(p)
+	if Library._lastTabs and Library._lastTabs.Notify then
+		return Library._lastTabs:Notify(p)
+	end
+end
+Library.Notification = Library.Notify
 
 return Library
 
