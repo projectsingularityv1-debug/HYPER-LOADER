@@ -1,5 +1,3 @@
-
-
 return {
     ["Blox Fruits"] = {
         RequiresKey = true, 
