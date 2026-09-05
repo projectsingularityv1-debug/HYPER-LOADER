@@ -2169,49 +2169,71 @@ do
 	end
 
 	function lak(t, o)
-
+		o = o or t
+		if not t or not o then return end
 		local a, b, c, d
-
 		local function u(i)
-
-			if Library.IsLocked then return end
-
+			if Library.IsLocked or not a or not c or not d or not o then return end
 			local dt = i.Position - c
-
 			tw({v = o, t = 0.05, s = Enum.EasingStyle.Linear, d = "InOut", g = {Position = UDim2.new(d.X.Scale, d.X.Offset + dt.X, d.Y.Scale, d.Y.Offset + dt.Y)}}):Play()
-
 		end
-
-		t.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then a = true c = i.Position d = o.Position; i.Changed:Connect(function() if i.UserInputState == Enum.UserInputState.End then a = false end end) end end)
-
-		t.InputChanged:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch then b = i end end)
-
-		U.InputChanged:Connect(function(i) if i == b and a then u(i) end end)
-
+		t.InputBegan:Connect(function(i)
+			if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+				a = true
+				c = i.Position
+				d = o.Position
+				i.Changed:Connect(function()
+					if i.UserInputState == Enum.UserInputState.End then
+						a = false
+					end
+				end)
+			end
+		end)
+		t.InputChanged:Connect(function(i)
+			if i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch then
+				b = i
+			end
+		end)
+		U.InputChanged:Connect(function(i)
+			if i == b and a and c and d and o then
+				u(i)
+			end
+		end)
 	end
 
 	function make_resize(t, o)
-
+		o = o or t
+		if not t or not o then return end
 		local a, b, c, d
-
 		local function u(i)
-
+			if not a or not c or not d or not o then return end
 			local dt = i.Position - c
-
 			local newX = math.max(450, d.X.Offset + dt.X)
-
 			local newY = math.max(300, d.Y.Offset + dt.Y)
-
 			tw({v = o, t = 0.05, s = Enum.EasingStyle.Linear, d = "InOut", g = {Size = UDim2.new(d.X.Scale, newX, d.Y.Scale, newY)}}):Play()
-
 		end
-
-		t.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then a = true c = i.Position d = o.Size; i.Changed:Connect(function() if i.UserInputState == Enum.UserInputState.End then a = false end end) end end)
-
-		t.InputChanged:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch then b = i end end)
-
-		U.InputChanged:Connect(function(i) if i == b and a then u(i) end end)
-
+		t.InputBegan:Connect(function(i)
+			if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+				a = true
+				c = i.Position
+				d = o.Size
+				i.Changed:Connect(function()
+					if i.UserInputState == Enum.UserInputState.End then
+						a = false
+					end
+				end)
+			end
+		end)
+		t.InputChanged:Connect(function(i)
+			if i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch then
+				b = i
+			end
+		end)
+		U.InputChanged:Connect(function(i)
+			if i == b and a and c and d and o then
+				u(i)
+			end
+		end)
 	end
 
 	function click(p)
