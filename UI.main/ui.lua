@@ -51,35 +51,23 @@ if _makefolder then
 	end)
 end
 
+local function urlHash(str)
+	local hash = 5381
+	for i = 1, #str do
+		hash = ((hash * 33) + string.byte(str, i)) % 4294967296
+	end
+	return string.format("%08x", hash)
+end
+
 -- Ultra-Fast CacheImage: Resolves Native IDs, Github Raw Assets and Local Assets into HYPER_Cache
 local function CacheImage(url)
 	if typeof(url) ~= "string" or url == "" then
-		if _getcustomasset and _isfile then
-			if _isfile("HYPER_Cache/HYPER.png") then
-				local ok, custom = pcall(function() return _getcustomasset("HYPER_Cache/HYPER.png") end)
-				if ok and custom then return custom end
-			elseif _isfile("HYPER_Cache/logo.png") then
-				local ok, custom = pcall(function() return _getcustomasset("HYPER_Cache/logo.png") end)
-				if ok and custom then return custom end
-			end
-		end
-		return "rbxassetid://13857987062"
+		url = "https://img2.pic.in.th/HYPER.png"
 	end
 
 	-- Normalize github blob url to raw url
 	if url:find("github%.com/.+/blob/") then
 		url = url:gsub("github%.com/([^/]+)/([^/]+)/blob/", "raw.githubusercontent.com/%1/%2/")
-	end
-
-	-- Check if local file exists in HYPER_Cache or root workspace
-	if _getcustomasset and _isfile then
-		if _isfile("HYPER_Cache/" .. url) then
-			local ok, custom = pcall(function() return _getcustomasset("HYPER_Cache/" .. url) end)
-			if ok and custom then return custom end
-		elseif _isfile(url) then
-			local ok, custom = pcall(function() return _getcustomasset(url) end)
-			if ok and custom then return custom end
-		end
 	end
 
 	-- Native Roblox assets (no disk cache, return directly)
@@ -92,13 +80,26 @@ local function CacheImage(url)
 		return "rbxassetid://" .. url
 	end
 
+	-- Check if local file exists directly in HYPER_Cache or root workspace
+	if _getcustomasset and _isfile then
+		if _isfile("HYPER_Cache/" .. url) then
+			local ok, custom = pcall(function() return _getcustomasset("HYPER_Cache/" .. url) end)
+			if ok and custom then return custom end
+		elseif _isfile(url) then
+			local ok, custom = pcall(function() return _getcustomasset(url) end)
+			if ok and custom then return custom end
+		end
+	end
+
 	-- Web URLs (http/https) - Caches only logo/web images into HYPER_Cache folder
 	if url:match("^https?://") then
 		if _getcustomasset then
 			if _makefolder and _isfolder and not _isfolder("HYPER_Cache") then
 				pcall(function() _makefolder("HYPER_Cache") end)
 			end
-			local fileId = url:match("([^/]+%.png)") or url:match("([^/]+%.jpg)") or url:match("([^/]+%.jpeg)") or "HYPER.png"
+			local ext = url:match("%.([%w]+)$") or "png"
+			local baseName = (url:match("([^/?#]+)%.") or "HYPER"):gsub("[^%w_-]", "")
+			local fileId = baseName .. "_" .. urlHash(url) .. "." .. ext
 			local filePath = "HYPER_Cache/" .. fileId
 			if _isfile and _isfile(filePath) then
 				local ok, custom = pcall(function() return _getcustomasset(filePath) end)
@@ -108,15 +109,24 @@ local function CacheImage(url)
 			local ok, data = pcall(function()
 				if _request then
 					local res = _request({Url = url, Method = "GET"})
-					if res and res.StatusCode == 200 then return res.Body end
+					if res then
+						local body = res.Body or res.body
+						local code = res.StatusCode or res.status_code or res.Status
+						if (code == 200 or res.Success) and body and #body > 0 then
+							return body
+						end
+					end
 				end
 				return game:HttpGet(url)
 			end)
-			if ok and data and #data > 0 then
+			if ok and data and typeof(data) == "string" and #data > 0 then
 				if _writefile then
 					pcall(function() _writefile(filePath, data) end)
-					local ok2, custom = pcall(function() return _getcustomasset(filePath) end)
-					if ok2 and custom then return custom end
+					pcall(function() _writefile("HYPER_Cache/HYPER.png", data) end)
+					if _isfile and _isfile(filePath) then
+						local ok2, custom = pcall(function() return _getcustomasset(filePath) end)
+						if ok2 and custom then return custom end
+					end
 				end
 			end
 		end
@@ -1862,7 +1872,7 @@ function Library:Window(p)
 	local Title = p.Title or 'HYPER HUB'
 	local Desc = p.Desc or ''
 	local Version = p.Version or '1.0'
-	local Icon = p.Icon or "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-LOADER/main/HYPER.png"
+	local Icon = p.Icon or "https://img2.pic.in.th/HYPER.png"
 	local Theme = (p.Theme == 'Amethyst' or not p.Theme or p.Theme == '') and 'Dark' or p.Theme
 	local Keybind = p.Config.Keybind or Enum.KeyCode.LeftControl
 	local Size = p.Config.Size or UDim2.new(0, 530,0, 400)
@@ -2538,7 +2548,7 @@ function Library:Window(p)
 
 	function Tabs:Tab(p)
 		local Title = p.Title or 'null'
-		local Icon = p.Icon or "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-LOADER/main/HYPER.png"
+		local Icon = p.Icon or "https://img2.pic.in.th/HYPER.png"
 		local Tab_1 = Instance.new("Frame")
 		local Title_3 = Instance.new("TextLabel")
 		local UIListLayout_9 = Instance.new("UIListLayout")

@@ -34,8 +34,16 @@ if _makefolder then
     end)
 end
 
+local function urlHash(str)
+    local hash = 5381
+    for i = 1, #str do
+        hash = ((hash * 33) + string.byte(str, i)) % 4294967296
+    end
+    return string.format("%08x", hash)
+end
+
 local function resolveLogo(url)
-    if typeof(url) ~= "string" or url == "" then return "rbxassetid://13857987062" end
+    if typeof(url) ~= "string" or url == "" then url = "https://img2.pic.in.th/HYPER.png" end
     if url:find("github%.com/.+/blob/") then
         url = url:gsub("github%.com/([^/]+)/([^/]+)/blob/", "raw.githubusercontent.com/%1/%2/")
     end
@@ -46,7 +54,9 @@ local function resolveLogo(url)
         if _makefolder and _isfolder and not _isfolder("HYPER_Cache") then
             pcall(function() _makefolder("HYPER_Cache") end)
         end
-        local fileId = url:match("([^/]+%.png)") or url:match("([^/]+%.jpg)") or url:match("([^/]+%.jpeg)") or "HYPER.png"
+        local ext = url:match("%.([%w]+)$") or "png"
+        local baseName = (url:match("([^/?#]+)%.") or "HYPER"):gsub("[^%w_-]", "")
+        local fileId = baseName .. "_" .. urlHash(url) .. "." .. ext
         local filePath = "HYPER_Cache/" .. fileId
         if _isfile and _isfile(filePath) then
             local ok, c = pcall(function() return _getcustomasset(filePath) end)
@@ -55,14 +65,23 @@ local function resolveLogo(url)
         local ok, data = pcall(function()
             if _request then
                 local res = _request({Url = url, Method = "GET"})
-                if res and res.StatusCode == 200 then return res.Body end
+                if res then
+                    local body = res.Body or res.body
+                    local code = res.StatusCode or res.status_code or res.Status
+                    if (code == 200 or res.Success) and body and #body > 0 then
+                        return body
+                    end
+                end
             end
             return game:HttpGet(url)
         end)
-        if ok and data and #data > 0 and _writefile then
+        if ok and data and typeof(data) == "string" and #data > 0 and _writefile then
             pcall(function() _writefile(filePath, data) end)
-            local ok2, c = pcall(function() return _getcustomasset(filePath) end)
-            if ok2 and c then return c end
+            pcall(function() _writefile("HYPER_Cache/HYPER.png", data) end)
+            if _isfile and _isfile(filePath) then
+                local ok2, c = pcall(function() return _getcustomasset(filePath) end)
+                if ok2 and c then return c end
+            end
         end
     end
     return "rbxassetid://13857987062"
@@ -75,7 +94,7 @@ local PlaceId = game.PlaceId
 -- ==============================================================================
 local Config = {
     BrandName = "Singularity Hub",
-    LogoAsset = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-LOADER/main/HYPER.png", -- Clean Orbit / Saturn Icon
+    LogoAsset = "https://img2.pic.in.th/HYPER.png", -- HYPER Logo
     FallbackLogo = "rbxassetid://112209635962758",
 
     -- PandaAuth Service API Configuration (pandauth.com)
