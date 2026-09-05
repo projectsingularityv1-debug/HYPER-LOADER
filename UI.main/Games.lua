@@ -1,25 +1,25 @@
 
 return {
     ["Blox Fruits"] = {
-        RequiresKey = true, 
+        RequiresKey = false, 
         PlaceIds = { 2753915549, 4442272183, 7449423635 },
         Local = "Scripts/M.lua/BF V1",
         Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/BF%20V1"
     },
     ["Murder Mystery 2"] = {
-        RequiresKey = true, 
+        RequiresKey = false, 
         PlaceIds = { 142823291 },
         Local = "Scripts/M.lua/MM2 DONE.lua",
         Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/MM2%20DONE.lua"
     },
     ["The Walking Dead"] = {
-        RequiresKey = true, 
+        RequiresKey = false, 
         PlaceIds = { 128039018996175 },
         Local = "Scripts/M.lua/TWD V1.lua",
         Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/TWD%20V1.lua"
     },
     ["Fisch"] = {
-        RequiresKey = true, 
+        RequiresKey = false, 
         PlaceIds = { 16732694052 },
         Local = "Scripts/M.lua/LK AUTO.lua",
         Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/LK%20AUTO.lua"

@@ -18,6 +18,56 @@ local RunService = getService("RunService")
 local CoreGui = getService("CoreGui")
 
 local LocalPlayer = Players and Players.LocalPlayer
+local _getcustomasset = (typeof(getcustomasset) == "function" and getcustomasset) or (typeof(getsynasset) == "function" and getsynasset) or nil
+local _writefile = (typeof(writefile) == "function" and writefile) or nil
+local _isfile = (typeof(isfile) == "function" and isfile) or nil
+local _isfolder = (typeof(isfolder) == "function" and isfolder) or nil
+local _makefolder = (typeof(makefolder) == "function" and makefolder) or nil
+local _request = (typeof(request) == "function" and request) or (typeof(http_request) == "function" and http_request) or (typeof(syn) == "table" and syn and syn.request) or nil
+
+-- Ensure cache directory exists for Logo assets
+if _makefolder then
+    pcall(function()
+        if not (_isfolder and _isfolder("HYPER_Cache")) and not (_isfile and _isfile("HYPER_Cache")) then
+            _makefolder("HYPER_Cache")
+        end
+    end)
+end
+
+local function resolveLogo(url)
+    if typeof(url) ~= "string" or url == "" then return "rbxassetid://13857987062" end
+    if url:find("github%.com/.+/blob/") then
+        url = url:gsub("github%.com/([^/]+)/([^/]+)/blob/", "raw.githubusercontent.com/%1/%2/")
+    end
+    if url:match("^rbxassetid://") or url:match("^rbxthumb://") or url:match("^rbxasset://") then return url end
+    if tonumber(url) then return "rbxassetid://" .. url end
+    
+    if url:match("^https?://") and _getcustomasset then
+        if _makefolder and _isfolder and not _isfolder("HYPER_Cache") then
+            pcall(function() _makefolder("HYPER_Cache") end)
+        end
+        local fileId = url:match("([^/]+%.png)") or url:match("([^/]+%.jpg)") or url:match("([^/]+%.jpeg)") or "HYPER.png"
+        local filePath = "HYPER_Cache/" .. fileId
+        if _isfile and _isfile(filePath) then
+            local ok, c = pcall(function() return _getcustomasset(filePath) end)
+            if ok and c then return c end
+        end
+        local ok, data = pcall(function()
+            if _request then
+                local res = _request({Url = url, Method = "GET"})
+                if res and res.StatusCode == 200 then return res.Body end
+            end
+            return game:HttpGet(url)
+        end)
+        if ok and data and #data > 0 and _writefile then
+            pcall(function() _writefile(filePath, data) end)
+            local ok2, c = pcall(function() return _getcustomasset(filePath) end)
+            if ok2 and c then return c end
+        end
+    end
+    return "rbxassetid://13857987062"
+end
+
 local PlaceId = game.PlaceId
 
 -- ==============================================================================
@@ -25,7 +75,7 @@ local PlaceId = game.PlaceId
 -- ==============================================================================
 local Config = {
     BrandName = "Singularity Hub",
-    LogoAsset = "rbxassetid://13857987062", -- Clean Orbit / Saturn Icon
+    LogoAsset = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-LOADER/main/HYPER.png", -- Clean Orbit / Saturn Icon
     FallbackLogo = "rbxassetid://112209635962758",
 
     -- PandaAuth Service API Configuration (pandauth.com)
@@ -372,7 +422,7 @@ LogoIcon.AnchorPoint = Vector2.new(0.5, 0)
 LogoIcon.Position = UDim2.new(0.5, 0, 0, 0)
 LogoIcon.Size = UDim2.new(0, 44, 0, 44)
 LogoIcon.BackgroundTransparency = 1
-LogoIcon.Image = Config.LogoAsset
+LogoIcon.Image = resolveLogo(Config.LogoAsset)
 LogoIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
 LogoIcon.ZIndex = 11
 LogoIcon.Parent = CenterLoader
@@ -471,7 +521,7 @@ KeyLogo.AnchorPoint = Vector2.new(0.5, 0)
 KeyLogo.Position = UDim2.new(0.5, 0, 0, 16)
 KeyLogo.Size = UDim2.new(0, 32, 0, 32)
 KeyLogo.BackgroundTransparency = 1
-KeyLogo.Image = Config.LogoAsset
+KeyLogo.Image = resolveLogo(Config.LogoAsset)
 KeyLogo.ImageColor3 = Color3.fromRGB(255, 255, 255)
 KeyLogo.ZIndex = 21
 KeyLogo.Parent = KeyCard
