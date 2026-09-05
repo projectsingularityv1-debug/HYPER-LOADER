@@ -88,7 +88,7 @@ end
 local Window = Library:Window({
     Title = "HYPER HUB",
     Desc = "UI Demonstration Suite",
-    Icon = "rbxassetid://136264753381080",
+    Icon = "https://img2.pic.in.th/HYPER.png",
     Version = "2.6",
     Theme = "Dark",
     Config = {
