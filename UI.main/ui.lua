@@ -1,8 +1,4 @@
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
---  Anti-Detection Bypass Layer (Dex-style)
---  Randomized names, cloneref services, gethui/protectgui hiding
--- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
-
+---v2
 
 local _cloneref = (typeof(cloneref) == "function" and cloneref) or function(...) return ... end
 local _gethui = (typeof(gethui) == "function" and gethui) or (typeof(get_hidden_gui) == "function" and get_hidden_gui) or nil
@@ -3069,11 +3065,13 @@ function Library:Window(p)
 			UIPadding_1.PaddingLeft = UDim.new(0,5)
 			UIPadding_1.PaddingRight = UDim.new(0,5)
 
-			local New = {}
-
-			function New:SetTitle(t)
-				Section_1.Text = t
-			end
+			local New = setmetatable({
+				SetTitle = function(self, t)
+					Section_1.Text = t
+				end
+			}, {
+				__index = Func
+			})
 
 			return New
 		end
