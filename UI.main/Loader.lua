@@ -20,6 +20,8 @@ local CoreGui = getService("CoreGui")
 local LocalPlayer = Players and Players.LocalPlayer
 local _getcustomasset = (typeof(getcustomasset) == "function" and getcustomasset) or (typeof(getsynasset) == "function" and getsynasset) or nil
 local _writefile = (typeof(writefile) == "function" and writefile) or nil
+local _readfile = (typeof(readfile) == "function" and readfile) or nil
+local _delfile = (typeof(delfile) == "function" and delfile) or nil
 local _isfile = (typeof(isfile) == "function" and isfile) or nil
 local _isfolder = (typeof(isfolder) == "function" and isfolder) or nil
 local _makefolder = (typeof(makefolder) == "function" and makefolder) or nil
@@ -136,55 +138,71 @@ local function urlHash(str)
     return string.format("%08x", hash)
 end
 
+local function getHyperCustomAsset()
+    if _writefile and _isfile then
+        local needWrite = false
+        if not _isfile("HYPER_Cache/HYPER.png") then
+            needWrite = true
+        elseif _readfile then
+            local c = _readfile("HYPER_Cache/HYPER.png")
+            if not c or #c ~= 19183 then
+                needWrite = true
+            end
+        end
+        if needWrite then
+            local data = getEmbeddedLogoData()
+            if data and #data > 0 then
+                pcall(function() _writefile("HYPER_Cache/HYPER.png", data) end)
+                pcall(function() _writefile("HYPER_Cache/HYPER_a79d4b62.png", data) end)
+            end
+        end
+    end
+    if _getcustomasset and _isfile and _isfile("HYPER_Cache/HYPER.png") then
+        local ok, custom = pcall(function() return _getcustomasset("HYPER_Cache/HYPER.png") end)
+        if ok and custom then return custom end
+    end
+    return nil
+end
+
 local function resolveLogo(url)
-    if not url or url == "" or url == "rbxassetid://136264753381080" or url == "136264753381080" or url == "rbxassetid://92567372646337" or url == "92567372646337" or url == "HYPER" or url == "HYPER.png" then
-        url = DEFAULT_HYPER_LOGO_URL
+    local urlStr = tostring(url or "")
+    local isHyper = (not url or url == "" or urlStr == "136264753381080" or urlStr == "rbxassetid://136264753381080" or urlStr == "92567372646337" or urlStr == "rbxassetid://92567372646337" or urlStr:find("HYPER") or urlStr == DEFAULT_HYPER_LOGO_URL)
+
+    if isHyper then
+        local custom = getHyperCustomAsset()
+        if custom then return custom end
+        return "rbxassetid://136264753381080"
     end
-    if typeof(url) == "string" and url:find("github%.com/.+/blob/") then
-        url = url:gsub("github%.com/([^/]+)/([^/]+)/blob/", "raw.githubusercontent.com/%1/%2/")
+
+    if urlStr:find("github%.com/.+/blob/") then
+        urlStr = urlStr:gsub("github%.com/([^/]+)/([^/]+)/blob/", "raw.githubusercontent.com/%1/%2/")
     end
-    if typeof(url) == "string" and (url:match("^rbxassetid://") or url:match("^rbxthumb://") or url:match("^rbxasset://")) then
-        return url
+
+    if urlStr:match("^rbxassetid://") or urlStr:match("^rbxthumb://") or urlStr:match("^rbxasset://") then
+        return urlStr
     end
-    if tonumber(url) then return "rbxassetid://" .. tostring(url) end
-    
-    if typeof(url) == "string" and url:match("^https?://") and _getcustomasset then
+    if tonumber(urlStr) then
+        return "rbxassetid://" .. urlStr
+    end
+
+    if urlStr:match("^https?://") and _getcustomasset then
         if _makefolder and _isfolder and not _isfolder("HYPER_Cache") then
             pcall(function() _makefolder("HYPER_Cache") end)
         end
-        local ext = url:match("%.([%w]+)$") or "png"
-        local baseName = (url:match("([^/?#]+)%.") or "HYPER"):gsub("[^%w_-]", "")
-        local fileId = baseName .. "_" .. urlHash(url) .. "." .. ext
+        local ext = urlStr:match("%.([%w]+)$") or "png"
+        local baseName = (urlStr:match("([^/?#]+)%.") or "asset"):gsub("[^%w_-]", "")
+        local fileId = baseName .. "_" .. urlHash(urlStr) .. "." .. ext
         local filePath = "HYPER_Cache/" .. fileId
-        local isHyperLogo = (url == DEFAULT_HYPER_LOGO_URL or url:find("img2%.pic%.in%.th/HYPER%.png") or baseName == "HYPER")
 
         if _isfile and _isfile(filePath) then
-            if isHyperLogo and _readfile then
-                local c = _readfile(filePath)
-                if c and #c == 19183 then
-                    local ok, c_asset = pcall(function() return _getcustomasset(filePath) end)
-                    if ok and c_asset then return c_asset end
-                end
-            else
-                local ok, c_asset = pcall(function() return _getcustomasset(filePath) end)
-                if ok and c_asset then return c_asset end
-            end
-        end
-
-        if isHyperLogo and _isfile and _isfile("HYPER_Cache/HYPER.png") then
-            if _readfile then
-                local c = _readfile("HYPER_Cache/HYPER.png")
-                if c and #c == 19183 then
-                    local ok, c_asset = pcall(function() return _getcustomasset("HYPER_Cache/HYPER.png") end)
-                    if ok and c_asset then return c_asset end
-                end
-            end
+            local ok, c_asset = pcall(function() return _getcustomasset(filePath) end)
+            if ok and c_asset then return c_asset end
         end
 
         local ok, data = pcall(function()
             if _request then
                 local res = _request({
-                    Url = url,
+                    Url = urlStr,
                     Method = "GET",
                     Headers = {
                         ["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -199,33 +217,19 @@ local function resolveLogo(url)
                     end
                 end
             end
-            return game:HttpGet(url)
+            return game:HttpGet(urlStr)
         end)
-
-        if (not ok or not data or typeof(data) ~= "string" or #data == 0) and isHyperLogo then
-            data = getEmbeddedLogoData()
-            ok = (data and #data > 0)
-        end
 
         if ok and data and typeof(data) == "string" and #data > 0 and _writefile then
             pcall(function() _writefile(filePath, data) end)
-            if isHyperLogo then
-                pcall(function() _writefile("HYPER_Cache/HYPER.png", data) end)
-            end
             if _isfile and _isfile(filePath) then
                 local ok2, c_asset = pcall(function() return _getcustomasset(filePath) end)
                 if ok2 and c_asset then return c_asset end
             end
         end
-
-        if _getcustomasset and _writefile and (url == DEFAULT_HYPER_LOGO_URL or url:find("HYPER")) then
-            local fallbackData = getEmbeddedLogoData()
-            pcall(function() _writefile("HYPER_Cache/HYPER.png", fallbackData) end)
-            local ok2, c_asset = pcall(function() return _getcustomasset("HYPER_Cache/HYPER.png") end)
-            if ok2 and c_asset then return c_asset end
-        end
     end
-    return DEFAULT_HYPER_LOGO_URL
+
+    return "rbxassetid://136264753381080"
 end
 
 local PlaceId = game.PlaceId
@@ -235,8 +239,8 @@ local PlaceId = game.PlaceId
 -- ==============================================================================
 local Config = {
     BrandName = "Singularity Hub",
-    LogoAsset = "https://img2.pic.in.th/HYPER.png", -- HYPER Logo
-    FallbackLogo = "https://img2.pic.in.th/HYPER.png",
+    LogoAsset = "136264753381080", -- HYPER Logo (Auto-resolves to HYPER_Cache custom asset)
+    FallbackLogo = "136264753381080",
 
     -- PandaAuth Service API Configuration (pandauth.com)
     PandaServiceId = "0058594f-3409-4a86-975b-c988368434a9",
@@ -250,21 +254,22 @@ local Config = {
 }
 
 -- ==============================================================================
--- // Dynamic Game Registry Loader
+-- // Dynamic Game Registry Loader (Loads purely from Games.lua)
 -- ==============================================================================
 local function loadGameRegistry()
     -- 1. Local Games.lua
     if typeof(isfile) == "function" and typeof(readfile) == "function" then
         local localPaths = {
             Config.GamesConfigLocal,
-            "Scripts/Games.lua",
+            "Scripts/UI.main/Games.lua",
             "UI.main/Games.lua",
+            "Scripts/Games.lua",
             "Games.lua"
         }
         for _, path in ipairs(localPaths) do
             if isfile(path) then
-                local content = readfile(path)
-                if content and #content > 20 then
+                local okRead, content = pcall(function() return readfile(path) end)
+                if okRead and content and #content > 20 then
                     local fn = loadstring(content)
                     if fn then
                         local ok, tbl = pcall(fn)
@@ -286,7 +291,14 @@ local function loadGameRegistry()
     for _, url in ipairs(remoteUrls) do
         local ok, code = pcall(function()
             if reqFunc then
-                local res = reqFunc({ Url = url, Method = "GET" })
+                local res = reqFunc({
+                    Url = url,
+                    Method = "GET",
+                    Headers = {
+                        ["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                        ["Accept"] = "*/*"
+                    }
+                })
                 if res and (res.StatusCode == 200 or res.Status == 200) and #res.Body > 20 then
                     return res.Body
                 end
@@ -304,57 +316,8 @@ local function loadGameRegistry()
         end
     end
 
-    -- 3. Embedded Safety Fallback
-    return {
-        ["Blox Fruits"] = {
-            RequiresKey = true,
-            PlaceIds = { 2753915549, 4442272183, 7449423635 },
-            Local = "Scripts/M.lua/BF V1",
-            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/BF%20V1"
-        },
-        ["Murder Mystery 2"] = {
-            RequiresKey = true,
-            PlaceIds = { 142823291 },
-            Local = "Scripts/M.lua/MM2 DONE.lua",
-            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/MM2%20DONE.lua"
-        },
-        ["The Walking Dead"] = {
-            RequiresKey = true,
-            PlaceIds = { 128039018996175 },
-            Local = "Scripts/M.lua/TWD V1.lua",
-            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/TWD%20V1.lua"
-        },
-        ["Fisch"] = {
-            RequiresKey = true,
-            PlaceIds = { 16732694052 },
-            Local = "Scripts/M.lua/LK AUTO.lua",
-            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/LK%20AUTO.lua"
-        },
-        ["Mine a Mountain"] = {
-            RequiresKey = false,
-            PlaceIds = { 125927821145949 },
-            Local = "Scripts/M.lua/fame 222.lua",
-            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/fame%20222.lua"
-        },
-        ["Laundry Simulator"] = {
-            RequiresKey = false,
-            PlaceIds = { 6305942109 },
-            Local = "Scripts/M.lua/LaundrySimulator_AutoFarm.lua",
-            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/LaundrySimulator_AutoFarm.lua"
-        },
-        ["Cali Shootout"] = {
-            RequiresKey = false,
-            PlaceIds = { 12077443856 },
-            Local = "Scripts/M.lua/gun auto.lua",
-            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/gun%20auto.lua"
-        },
-        ["Basketball"] = {
-            RequiresKey = false,
-            PlaceIds = { 16033173781, 16270425785 },
-            Local = "Scripts/Basketball_XINZ.lua",
-            Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-MAIN/refs/heads/main/M.lua/Basketball_XINZ.lua"
-        }
-    }
+    warn("[Singularity Hub] Failed to load Games.lua registry")
+    return {}
 end
 
 local TargetGames = loadGameRegistry()
