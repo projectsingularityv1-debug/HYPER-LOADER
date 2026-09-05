@@ -53,11 +53,33 @@ end
 
 -- Ultra-Fast CacheImage: Resolves Native IDs, Github Raw Assets and Local Assets into HYPER_Cache
 local function CacheImage(url)
-	if typeof(url) ~= "string" or url == "" then return "rbxassetid://13857987062" end
+	if typeof(url) ~= "string" or url == "" then
+		if _getcustomasset and _isfile then
+			if _isfile("HYPER_Cache/HYPER.png") then
+				local ok, custom = pcall(function() return _getcustomasset("HYPER_Cache/HYPER.png") end)
+				if ok and custom then return custom end
+			elseif _isfile("HYPER_Cache/logo.png") then
+				local ok, custom = pcall(function() return _getcustomasset("HYPER_Cache/logo.png") end)
+				if ok and custom then return custom end
+			end
+		end
+		return "rbxassetid://13857987062"
+	end
 
 	-- Normalize github blob url to raw url
 	if url:find("github%.com/.+/blob/") then
 		url = url:gsub("github%.com/([^/]+)/([^/]+)/blob/", "raw.githubusercontent.com/%1/%2/")
+	end
+
+	-- Check if local file exists in HYPER_Cache or root workspace
+	if _getcustomasset and _isfile then
+		if _isfile("HYPER_Cache/" .. url) then
+			local ok, custom = pcall(function() return _getcustomasset("HYPER_Cache/" .. url) end)
+			if ok and custom then return custom end
+		elseif _isfile(url) then
+			local ok, custom = pcall(function() return _getcustomasset(url) end)
+			if ok and custom then return custom end
+		end
 	end
 
 	-- Native Roblox assets (no disk cache, return directly)
@@ -937,11 +959,11 @@ do
 		end
 
 		local str = tostring(resolved or "")
-		if str:match("^https?://") then
+		if str:match("^https?://") or str:match("%.png$") or str:match("%.jpg$") or str:match("%.jpeg$") or str:find("^HYPER_Cache/") or str:find("HYPER") then
 			str = CacheImage(str)
 		elseif tonumber(str) then
 			str = "rbxassetid://" .. str
-		elseif str ~= "" and not str:find("^rbxassetid://") and not str:find("^rbxasset://") and not str:find("^rbxthumb://") then
+		elseif str ~= "" and not str:find("^rbxassetid://") and not str:find("^rbxasset://") and not str:find("^rbxthumb://") and not str:find("^http") then
 			str = "rbxassetid://" .. str
 		end
 
@@ -2142,11 +2164,15 @@ function Library:Window(p)
 	Icon_1.BorderColor3 = Color3.fromRGB(0,0,0)
 	Icon_1.BorderSizePixel = 0
 	Icon_1.Size = UDim2.new(0, 45,0, 45)
-	Icon_1.Image = gl(Icon).Image
-	Icon_1.ImageRectSize = gl(Icon).ImageRectSize
-	Icon_1.ImageRectOffset = gl(Icon).ImageRectPosition
+	local resolvedIcon = gl(Icon)
+	Icon_1.Image = resolvedIcon.Image
+	Icon_1.ImageRectSize = resolvedIcon.ImageRectSize
+	Icon_1.ImageRectOffset = resolvedIcon.ImageRectPosition
+	Icon_1.ImageColor3 = Color3.fromRGB(255, 255, 255)
 
-	addToTheme('Text', Icon_1)
+	if resolvedIcon.ImageRectSize and resolvedIcon.ImageRectSize ~= Vector2.new(0, 0) then
+		addToTheme('Text', Icon_1)
+	end
 
 	Title_1.Name = "Title"
 	Title_1.Parent = Td_1
@@ -5938,7 +5964,7 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 		ImageLabel_1.BorderSizePixel = 0
 		ImageLabel_1.Position = UDim2.new(0.5, 0,0.5, 0)
 		ImageLabel_1.Size = UDim2.new(0, 100,0, 100)
-		ImageLabel_1.Image = CacheImage("rbxassetid://13857987062")
+		ImageLabel_1.Image = Icon_1.Image
 		ImageLabel_1.ImageTransparency = 1
 
 		UICorner_1.Parent = SizeFrame
@@ -5961,7 +5987,7 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 				}}):Play()
 				Minisize_1.Image = CacheImage("rbxassetid://13857981896")
 			else
-				Minisize_1.Image = CacheImage("rbxassetid://13857987062")
+				Minisize_1.Image = Icon_1.Image
 				tw({v = Shadow_1, t = 0.15, s = Enum.EasingStyle.Exponential, d = "Out", g = {
 					Size = originalSize,
 					Position = originalPosition
@@ -5998,7 +6024,7 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 				tw({v = Shadow_1, t = 0.05, s = Enum.EasingStyle.Exponential, d = "Out", g = {Size = nZ}}):Play()
 				tw({v = SizeFrame, t = 0.15, s = Enum.EasingStyle.Linear, d = "Out", g = {BackgroundTransparency = 0.6}}):Play()
 				tw({v = ImageLabel_1, t = 0.15, s = Enum.EasingStyle.Linear, d = "Out", g = {ImageTransparency = 0}}):Play()
-				ImageLabel_1.Image = CacheImage('rbxassetid://13857987062')	
+				ImageLabel_1.Image = Icon_1.Image	
 			elseif isZ and R and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
 				tw({v = SizeFrame, t = 0.15, s = Enum.EasingStyle.Linear, d = "Out", g = {BackgroundTransparency = 0.6}}):Play()
 				tw({v = ImageLabel_1, t = 0.15, s = Enum.EasingStyle.Linear, d = "Out", g = {ImageTransparency = 0}}):Play()
@@ -6615,11 +6641,11 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 			Icon = "house"
 		})
 
-		-- Image Carousel (เธเธธเธ“เธชเธฒเธกเธฒเธฃเธ–เธเธณ ID เธฃเธนเธเธ เธฒเธเธกเธฒเน€เธเธฅเธตเนเธขเธเธ•เธฃเธเธเธตเนเนเธ”เนเน€เธฅเธข)
+		-- Image Carousel
 		local CarouselImages = {
-			CacheImage("rbxassetid://92567372646337"), -- เธฃเธนเธเธ—เธตเน 1
-			CacheImage("rbxassetid://92567372646337"), -- เธฃเธนเธเธ—เธตเน 2 
-			CacheImage("rbxassetid://92567372646337"), -- เธฃเธนเธเธ—เธตเน 3
+			Icon_1.Image ~= "" and Icon_1.Image or CacheImage("rbxassetid://92567372646337"),
+			CacheImage("rbxassetid://92567372646337"),
+			CacheImage("rbxassetid://92567372646337"),
 		}
 		
 		local HomeCarousel = HomeTab:Image()
@@ -6627,13 +6653,13 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 		
 		task.spawn(function()
 			local idx = 1
-			while task.wait(5) do -- เธชเธฅเธฑเธเธฃเธนเธเธ—เธธเธเน 5 เธงเธดเธเธฒเธ—เธต
+			while task.wait(5) do
 				if not HomeCarousel then break end
 				idx = idx + 1
 				if idx > #CarouselImages then idx = 1 end
 				
 				local s = pcall(function()
-					HomeCarousel:SetImage(CarouselImages[idx], true) -- true = เนเธซเนเธกเธตเน€เธญเธเน€เธเธเธ•เน Fade (เน€เธฅเธทเธญเธ)
+					HomeCarousel:SetImage(CarouselImages[idx], true)
 				end)
 				if not s then break end
 			end
@@ -6682,7 +6708,7 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 		ResizeHandle.Position = UDim2.new(1, -2, 1, -2)
 		ResizeHandle.Size = UDim2.new(0, 15, 0, 15)
 		ResizeHandle.BackgroundTransparency = 1
-		ResizeHandle.Image = CacheImage("rbxassetid://10901594247") -- using generic user icon as a placeholder handle, can be invisible
+		ResizeHandle.Image = CacheImage("rbxassetid://10901594247")
 		ResizeHandle.ImageTransparency = 0.8
 		ResizeHandle.ZIndex = 100
 		
@@ -6749,6 +6775,8 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 			end
 		})
 
+		Tabs.Logo = Icon_1.Image
+		Library.Logo = Icon_1.Image
 		Library._lastTabs = Tabs
 		return Tabs
 end
