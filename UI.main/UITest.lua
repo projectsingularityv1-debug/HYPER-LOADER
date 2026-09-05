@@ -88,7 +88,7 @@ end
 local Window = Library:Window({
     Title = "HYPER HUB",
     Desc = "UI Demonstration Suite",
-    Icon = "https://img2.pic.in.th/HYPER.png",
+    Icon = "rbxassetid://136264753381080",
     Version = "2.6",
     Theme = "Dark",
     Config = {
@@ -150,6 +150,32 @@ BtnTab:Button({
     Image = "award",
     Callback = function()
         print("[Singularity] Award Button clicked!")
+    end
+})
+
+BtnTab:Button({
+    Title = "Open Save Panel (macOS NSSavePanel)",
+    Desc = "Prompt macOS-style Save Panel dialog with filename, folder, format and file browser.",
+    Image = "download",
+    Callback = function()
+        Window:SavePanel({
+            DefaultName = "Config_Preset_1",
+            Where = {"HYPER_Configs", "Documents", "Custom"},
+            Formats = {"JSON (*.json)", "Lua (*.lua)", "Text (*.txt)", "Config (*.cfg)"},
+            DefaultFormat = "JSON (*.json)",
+            Data = {
+                Theme = "Dark",
+                FastMode = true,
+                AutoFarm = true,
+                Speed = 25
+            },
+            OnSave = function(info)
+                print("[Singularity] SavePanel Saved:", info.FullPath)
+            end,
+            OnCancel = function()
+                print("[Singularity] SavePanel Cancelled")
+            end
+        })
     end
 })
 

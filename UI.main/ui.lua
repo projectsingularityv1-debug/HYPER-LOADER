@@ -39,6 +39,7 @@ local _readfile = (typeof(readfile) == "function" and readfile) or nil
 local _isfile = (typeof(isfile) == "function" and isfile) or nil
 local _isfolder = (typeof(isfolder) == "function" and isfolder) or nil
 local _makefolder = (typeof(makefolder) == "function" and makefolder) or nil
+local _listfiles = (typeof(listfiles) == "function" and listfiles) or (typeof(list_files) == "function" and list_files) or nil
 local _getcustomasset = (typeof(getcustomasset) == "function" and getcustomasset) or (typeof(getsynasset) == "function" and getsynasset) or nil
 local _request = (typeof(request) == "function" and request) or (typeof(http_request) == "function" and http_request) or (typeof(syn) == "table" and syn and syn.request) or nil
 
@@ -62,7 +63,7 @@ end
 -- Ultra-Fast CacheImage: Resolves Native IDs, Github Raw Assets and Local Assets into HYPER_Cache
 local function CacheImage(url)
 	if typeof(url) ~= "string" or url == "" then
-		url = "https://img2.pic.in.th/HYPER.png"
+		url = "rbxassetid://136264753381080"
 	end
 
 	-- Normalize github blob url to raw url
@@ -131,7 +132,7 @@ local function CacheImage(url)
 			end
 		end
 		-- Fallback to native orbit asset
-		return "rbxassetid://13857987062"
+		return "rbxassetid://136264753381080"
 	end
 
 	return url
@@ -1872,7 +1873,7 @@ function Library:Window(p)
 	local Title = p.Title or 'HYPER HUB'
 	local Desc = p.Desc or ''
 	local Version = p.Version or '1.0'
-	local Icon = p.Icon or "https://img2.pic.in.th/HYPER.png"
+	local Icon = p.Icon or "rbxassetid://136264753381080"
 	local Theme = (p.Theme == 'Amethyst' or not p.Theme or p.Theme == '') and 'Dark' or p.Theme
 	local Keybind = p.Config.Keybind or Enum.KeyCode.LeftControl
 	local Size = p.Config.Size or UDim2.new(0, 530,0, 400)
@@ -2548,7 +2549,7 @@ function Library:Window(p)
 
 	function Tabs:Tab(p)
 		local Title = p.Title or 'null'
-		local Icon = p.Icon or "https://img2.pic.in.th/HYPER.png"
+		local Icon = p.Icon or "rbxassetid://136264753381080"
 		local Tab_1 = Instance.new("Frame")
 		local Title_3 = Instance.new("TextLabel")
 		local UIListLayout_9 = Instance.new("UIListLayout")
@@ -5936,6 +5937,894 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 		end)
 	end
 
+	-- ==============================================================================
+	-- // macOS NSSavePanel - Save Dialog Component
+	-- ==============================================================================
+	function Tabs:SavePanel(p)
+		p = p or {}
+		local DefaultName = p.DefaultName or p.Name or "Untitled"
+		local DefaultFolder = p.Where or p.Folder or "HYPER_Configs"
+		local Folders = type(p.Where) == "table" and p.Where or {DefaultFolder}
+		local Formats = p.Formats or p.AllowedFormats or {"JSON (*.json)", "Lua (*.lua)", "Text (*.txt)", "Config (*.cfg)"}
+		if type(Formats) == "string" then Formats = {Formats} end
+		local DefaultFormat = p.DefaultFormat or Formats[1] or "JSON (*.json)"
+		local DataToSave = p.Data or p.Content or nil
+		local AutoWrite = (p.AutoWrite ~= false)
+		local OnSave = p.OnSave or p.Callback or function() end
+		local OnCancel = p.OnCancel or function() end
+		local isExpanded = (p.Expanded == true)
+
+		-- Ensure default folder exists on disk if executor supports makefolder
+		if _makefolder and _isfolder and not _isfolder(DefaultFolder) then
+			pcall(function() _makefolder(DefaultFolder) end)
+		end
+
+		local selectedFolder = DefaultFolder
+		local selectedFormat = DefaultFormat
+
+		local function getExtension(fmt)
+			local ext = fmt:match("%*%.([%w_]+)") or fmt:match("%.([%w_]+)") or fmt:match("([%w_]+)$") or "json"
+			return "." .. ext
+		end
+
+		local function getCleanFormatLabel(fmt)
+			return fmt:match("^([^(]+)") and fmt:match("^([^(]+)"):gsub("%s+$", "") or fmt
+		end
+
+		-- Check if a SavePanel already exists to prevent duplicates
+		local existingPanel = ScreenGui:FindFirstChild("HYPER_SavePanelOverlay")
+		if existingPanel then
+			existingPanel:Destroy()
+		end
+
+		local SavePanelOverlay = Instance.new("TextButton")
+		local PanelShadow = Instance.new("ImageLabel")
+		local PanelShadowPadding = Instance.new("UIPadding")
+		local PanelCard = Instance.new("CanvasGroup")
+		local PanelCorner = Instance.new("UICorner")
+		local PanelStroke = Instance.new("UIStroke")
+
+		SavePanelOverlay.Name = "HYPER_SavePanelOverlay"
+		SavePanelOverlay.Parent = ScreenGui
+		SavePanelOverlay.AutoButtonColor = false
+		SavePanelOverlay.Text = ""
+		SavePanelOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		SavePanelOverlay.BackgroundTransparency = 1
+		SavePanelOverlay.BorderSizePixel = 0
+		SavePanelOverlay.Size = UDim2.new(1, 0, 1, 0)
+		SavePanelOverlay.Position = UDim2.new(0, 0, 0, 0)
+		SavePanelOverlay.ZIndex = 250
+
+		PanelShadow.Name = "PanelShadow"
+		PanelShadow.Parent = SavePanelOverlay
+		PanelShadow.AnchorPoint = Vector2.new(0.5, 0.5)
+		PanelShadow.Position = UDim2.new(0.5, 0, 0.5, 0)
+		local compactH = 158
+		local expandedH = 338
+		local currentH = isExpanded and expandedH or compactH
+		PanelShadow.Size = UDim2.new(0, 420, 0, currentH + 20)
+		PanelShadow.BackgroundTransparency = 1
+		PanelShadow.Image = CacheImage("rbxassetid://1316045217")
+		PanelShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+		PanelShadow.ImageTransparency = 0.35
+		PanelShadow.ScaleType = Enum.ScaleType.Slice
+		PanelShadow.SliceCenter = Rect.new(10, 10, 118, 118)
+		PanelShadow.ZIndex = 251
+
+		PanelShadowPadding.Parent = PanelShadow
+		PanelShadowPadding.PaddingTop = UDim.new(0, 10)
+		PanelShadowPadding.PaddingBottom = UDim.new(0, 10)
+		PanelShadowPadding.PaddingLeft = UDim.new(0, 10)
+		PanelShadowPadding.PaddingRight = UDim.new(0, 10)
+
+		PanelCard.Name = "PanelCard"
+		PanelCard.Parent = PanelShadow
+		PanelCard.Size = UDim2.new(1, 0, 1, 0)
+		PanelCard.BackgroundColor3 = Color3.fromRGB(30, 31, 36)
+		PanelCard.BorderSizePixel = 0
+		PanelCard.GroupTransparency = 1
+		PanelCard.ClipsDescendants = true
+		PanelCard.ZIndex = 252
+
+		PanelCorner.CornerRadius = UDim.new(0, 12)
+		PanelCorner.Parent = PanelCard
+
+		PanelStroke.Parent = PanelCard
+		PanelStroke.Color = Color3.fromRGB(255, 255, 255)
+		PanelStroke.Transparency = 0.88
+		PanelStroke.Thickness = 1
+
+		-- Top Section (Doc Icon, Save As, Where)
+		local TopSection = Instance.new("Frame")
+		TopSection.Name = "TopSection"
+		TopSection.Parent = PanelCard
+		TopSection.BackgroundTransparency = 1
+		TopSection.Position = UDim2.new(0, 0, 0, 0)
+		TopSection.Size = UDim2.new(1, 0, 0, 95)
+		TopSection.ZIndex = 253
+
+		-- File/Doc Icon
+		local DocIconCard = Instance.new("Frame")
+		local DocIconCorner = Instance.new("UICorner")
+		local DocIconStroke = Instance.new("UIStroke")
+		local DocIconImg = Instance.new("ImageLabel")
+
+		DocIconCard.Name = "DocIconCard"
+		DocIconCard.Parent = TopSection
+		DocIconCard.Position = UDim2.new(0, 18, 0, 18)
+		DocIconCard.Size = UDim2.new(0, 42, 0, 52)
+		DocIconCard.BackgroundColor3 = Color3.fromRGB(40, 42, 50)
+		DocIconCard.BorderSizePixel = 0
+
+		DocIconCorner.CornerRadius = UDim.new(0, 6)
+		DocIconCorner.Parent = DocIconCard
+
+		DocIconStroke.Color = Color3.fromRGB(255, 255, 255)
+		DocIconStroke.Transparency = 0.86
+		DocIconStroke.Thickness = 1
+		DocIconStroke.Parent = DocIconCard
+
+		DocIconImg.Name = "DocIconImg"
+		DocIconImg.Parent = DocIconCard
+		DocIconImg.AnchorPoint = Vector2.new(0.5, 0.5)
+		DocIconImg.Position = UDim2.new(0.5, 0, 0.5, 0)
+		DocIconImg.Size = UDim2.new(0, 24, 0, 24)
+		DocIconImg.BackgroundTransparency = 1
+		local docResolved = gl("file-text")
+		DocIconImg.Image = docResolved.Image
+		DocIconImg.ImageRectSize = docResolved.ImageRectSize
+		DocIconImg.ImageRectOffset = docResolved.ImageRectPosition
+		DocIconImg.ImageColor3 = Color3.fromRGB(150, 175, 215)
+
+		-- Form Inputs Container
+		local FormContainer = Instance.new("Frame")
+		FormContainer.Name = "FormContainer"
+		FormContainer.Parent = TopSection
+		FormContainer.BackgroundTransparency = 1
+		FormContainer.Position = UDim2.new(0, 72, 0, 15)
+		FormContainer.Size = UDim2.new(1, -90, 0, 70)
+
+		-- Row 1: Save As
+		local RowSaveAs = Instance.new("Frame")
+		RowSaveAs.Name = "RowSaveAs"
+		RowSaveAs.Parent = FormContainer
+		RowSaveAs.BackgroundTransparency = 1
+		RowSaveAs.Position = UDim2.new(0, 0, 0, 0)
+		RowSaveAs.Size = UDim2.new(1, 0, 0, 28)
+
+		local LabelSaveAs = Instance.new("TextLabel")
+		LabelSaveAs.Name = "LabelSaveAs"
+		LabelSaveAs.Parent = RowSaveAs
+		LabelSaveAs.BackgroundTransparency = 1
+		LabelSaveAs.Position = UDim2.new(0, 0, 0, 0)
+		LabelSaveAs.Size = UDim2.new(0, 60, 1, 0)
+		LabelSaveAs.Font = Enum.Font.GothamMedium
+		LabelSaveAs.Text = "Save As:"
+		LabelSaveAs.TextColor3 = Color3.fromRGB(190, 192, 200)
+		LabelSaveAs.TextSize = 12
+		LabelSaveAs.TextXAlignment = Enum.TextXAlignment.Right
+
+		local InputContainer = Instance.new("Frame")
+		local InputCorner = Instance.new("UICorner")
+		local InputStroke = Instance.new("UIStroke")
+		local NameTextBox = Instance.new("TextBox")
+
+		InputContainer.Name = "InputContainer"
+		InputContainer.Parent = RowSaveAs
+		InputContainer.Position = UDim2.new(0, 68, 0, 1)
+		InputContainer.Size = UDim2.new(1, -102, 0, 26)
+		InputContainer.BackgroundColor3 = Color3.fromRGB(44, 46, 54)
+		InputContainer.BorderSizePixel = 0
+
+		InputCorner.CornerRadius = UDim.new(0, 6)
+		InputCorner.Parent = InputContainer
+
+		InputStroke.Color = Color3.fromRGB(255, 255, 255)
+		InputStroke.Transparency = 0.86
+		InputStroke.Thickness = 1
+		InputStroke.Parent = InputContainer
+
+		NameTextBox.Name = "NameTextBox"
+		NameTextBox.Parent = InputContainer
+		NameTextBox.BackgroundTransparency = 1
+		NameTextBox.Position = UDim2.new(0, 8, 0, 0)
+		NameTextBox.Size = UDim2.new(1, -16, 1, 0)
+		NameTextBox.Font = Enum.Font.GothamMedium
+		NameTextBox.Text = DefaultName
+		NameTextBox.PlaceholderText = "Untitled"
+		NameTextBox.PlaceholderColor3 = Color3.fromRGB(130, 130, 140)
+		NameTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+		NameTextBox.TextSize = 12
+		NameTextBox.TextXAlignment = Enum.TextXAlignment.Left
+		NameTextBox.ClearTextOnFocus = false
+
+		NameTextBox.Focused:Connect(function()
+			tw({v = InputStroke, t = 0.2, s = Enum.EasingStyle.Quad, d = "Out", g = {Color = Color3.fromRGB(0, 122, 255), Transparency = 0.3}}):Play()
+		end)
+		NameTextBox.FocusLost:Connect(function()
+			tw({v = InputStroke, t = 0.2, s = Enum.EasingStyle.Quad, d = "Out", g = {Color = Color3.fromRGB(255, 255, 255), Transparency = 0.86}}):Play()
+		end)
+
+		-- Disclosure Button [ v ]
+		local DisclosureBtn = Instance.new("ImageButton")
+		local DisclosureCorner = Instance.new("UICorner")
+		local DisclosureStroke = Instance.new("UIStroke")
+		local DisclosureChevron = Instance.new("ImageLabel")
+
+		DisclosureBtn.Name = "DisclosureBtn"
+		DisclosureBtn.Parent = RowSaveAs
+		DisclosureBtn.AnchorPoint = Vector2.new(1, 0)
+		DisclosureBtn.Position = UDim2.new(1, 0, 0, 1)
+		DisclosureBtn.Size = UDim2.new(0, 26, 0, 26)
+		DisclosureBtn.BackgroundColor3 = Color3.fromRGB(44, 46, 54)
+		DisclosureBtn.BorderSizePixel = 0
+		DisclosureBtn.AutoButtonColor = false
+
+		DisclosureCorner.CornerRadius = UDim.new(0, 6)
+		DisclosureCorner.Parent = DisclosureBtn
+
+		DisclosureStroke.Color = Color3.fromRGB(255, 255, 255)
+		DisclosureStroke.Transparency = 0.86
+		DisclosureStroke.Thickness = 1
+		DisclosureStroke.Parent = DisclosureBtn
+
+		DisclosureChevron.Name = "Chevron"
+		DisclosureChevron.Parent = DisclosureBtn
+		DisclosureChevron.AnchorPoint = Vector2.new(0.5, 0.5)
+		DisclosureChevron.Position = UDim2.new(0.5, 0, 0.5, 0)
+		DisclosureChevron.Size = UDim2.new(0, 13, 0, 13)
+		DisclosureChevron.BackgroundTransparency = 1
+		local chevResolved = gl("chevron-down")
+		DisclosureChevron.Image = chevResolved.Image
+		DisclosureChevron.ImageRectSize = chevResolved.ImageRectSize
+		DisclosureChevron.ImageRectOffset = chevResolved.ImageRectPosition
+		DisclosureChevron.ImageColor3 = Color3.fromRGB(180, 182, 190)
+		DisclosureChevron.Rotation = isExpanded and 180 or 0
+
+		-- Row 2: Where
+		local RowWhere = Instance.new("Frame")
+		RowWhere.Name = "RowWhere"
+		RowWhere.Parent = FormContainer
+		RowWhere.BackgroundTransparency = 1
+		RowWhere.Position = UDim2.new(0, 0, 0, 36)
+		RowWhere.Size = UDim2.new(1, 0, 0, 28)
+
+		local LabelWhere = Instance.new("TextLabel")
+		LabelWhere.Name = "LabelWhere"
+		LabelWhere.Parent = RowWhere
+		LabelWhere.BackgroundTransparency = 1
+		LabelWhere.Position = UDim2.new(0, 0, 0, 0)
+		LabelWhere.Size = UDim2.new(0, 60, 1, 0)
+		LabelWhere.Font = Enum.Font.GothamMedium
+		LabelWhere.Text = "Where:"
+		LabelWhere.TextColor3 = Color3.fromRGB(190, 192, 200)
+		LabelWhere.TextSize = 12
+		LabelWhere.TextXAlignment = Enum.TextXAlignment.Right
+
+		local WhereBtn = Instance.new("TextButton")
+		local WhereCorner = Instance.new("UICorner")
+		local WhereStroke = Instance.new("UIStroke")
+		local WhereFolderIcon = Instance.new("ImageLabel")
+		local WhereLabel = Instance.new("TextLabel")
+		local WhereCaret = Instance.new("TextLabel")
+
+		WhereBtn.Name = "WhereBtn"
+		WhereBtn.Parent = RowWhere
+		WhereBtn.Position = UDim2.new(0, 68, 0, 1)
+		WhereBtn.Size = UDim2.new(1, -68, 0, 26)
+		WhereBtn.BackgroundColor3 = Color3.fromRGB(44, 46, 54)
+		WhereBtn.BorderSizePixel = 0
+		WhereBtn.AutoButtonColor = false
+		WhereBtn.Text = ""
+
+		WhereCorner.CornerRadius = UDim.new(0, 6)
+		WhereCorner.Parent = WhereBtn
+
+		WhereStroke.Color = Color3.fromRGB(255, 255, 255)
+		WhereStroke.Transparency = 0.86
+		WhereStroke.Thickness = 1
+		WhereStroke.Parent = WhereBtn
+
+		WhereFolderIcon.Name = "FolderIcon"
+		WhereFolderIcon.Parent = WhereBtn
+		WhereFolderIcon.Position = UDim2.new(0, 7, 0.5, -7)
+		WhereFolderIcon.Size = UDim2.new(0, 14, 0, 14)
+		WhereFolderIcon.BackgroundTransparency = 1
+		local folderRes = gl("folder")
+		WhereFolderIcon.Image = folderRes.Image
+		WhereFolderIcon.ImageRectSize = folderRes.ImageRectSize
+		WhereFolderIcon.ImageRectOffset = folderRes.ImageRectPosition
+		WhereFolderIcon.ImageColor3 = Color3.fromRGB(255, 205, 85)
+
+		WhereLabel.Name = "FolderLabel"
+		WhereLabel.Parent = WhereBtn
+		WhereLabel.BackgroundTransparency = 1
+		WhereLabel.Position = UDim2.new(0, 26, 0, 0)
+		WhereLabel.Size = UDim2.new(1, -45, 1, 0)
+		WhereLabel.Font = Enum.Font.GothamMedium
+		WhereLabel.Text = selectedFolder
+		WhereLabel.TextColor3 = Color3.fromRGB(235, 235, 240)
+		WhereLabel.TextSize = 12
+		WhereLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+		WhereCaret.Name = "Caret"
+		WhereCaret.Parent = WhereBtn
+		WhereCaret.AnchorPoint = Vector2.new(1, 0.5)
+		WhereCaret.Position = UDim2.new(1, -8, 0.5, 0)
+		WhereCaret.Size = UDim2.new(0, 10, 1, 0)
+		WhereCaret.BackgroundTransparency = 1
+		WhereCaret.Font = Enum.Font.Gotham
+		WhereCaret.Text = "▾"
+		WhereCaret.TextColor3 = Color3.fromRGB(160, 160, 170)
+		WhereCaret.TextSize = 11
+
+		-- Middle Section (File Browser)
+		local BrowserSection = Instance.new("Frame")
+		local BrowserCorner = Instance.new("UICorner")
+		local BrowserStroke = Instance.new("UIStroke")
+		local BrowserHeader = Instance.new("Frame")
+		local SearchBoxContainer = Instance.new("Frame")
+		local SearchBoxCorner = Instance.new("UICorner")
+		local SearchIcon = Instance.new("ImageLabel")
+		local SearchInput = Instance.new("TextBox")
+		local FileListScroll = Instance.new("ScrollingFrame")
+		local FileListLayout = Instance.new("UIListLayout")
+		local FileListPadding = Instance.new("UIPadding")
+
+		BrowserSection.Name = "BrowserSection"
+		BrowserSection.Parent = PanelCard
+		BrowserSection.Position = UDim2.new(0, 18, 0, 95)
+		BrowserSection.Size = UDim2.new(1, -36, 0, 180)
+		BrowserSection.BackgroundColor3 = Color3.fromRGB(23, 24, 28)
+		BrowserSection.BorderSizePixel = 0
+		BrowserSection.Visible = isExpanded
+		BrowserSection.ClipsDescendants = true
+
+		BrowserCorner.CornerRadius = UDim.new(0, 8)
+		BrowserCorner.Parent = BrowserSection
+
+		BrowserStroke.Color = Color3.fromRGB(255, 255, 255)
+		BrowserStroke.Transparency = 0.9
+		BrowserStroke.Thickness = 1
+		BrowserStroke.Parent = BrowserSection
+
+		BrowserHeader.Name = "BrowserHeader"
+		BrowserHeader.Parent = BrowserSection
+		BrowserHeader.BackgroundTransparency = 1
+		BrowserHeader.Position = UDim2.new(0, 8, 0, 6)
+		BrowserHeader.Size = UDim2.new(1, -16, 0, 24)
+
+		SearchBoxContainer.Name = "SearchBox"
+		SearchBoxContainer.Parent = BrowserHeader
+		SearchBoxContainer.Size = UDim2.new(1, 0, 1, 0)
+		SearchBoxContainer.BackgroundColor3 = Color3.fromRGB(34, 35, 42)
+		SearchBoxContainer.BorderSizePixel = 0
+
+		SearchBoxCorner.CornerRadius = UDim.new(0, 5)
+		SearchBoxCorner.Parent = SearchBoxContainer
+
+		SearchIcon.Name = "SearchIcon"
+		SearchIcon.Parent = SearchBoxContainer
+		SearchIcon.Position = UDim2.new(0, 6, 0.5, -6)
+		SearchIcon.Size = UDim2.new(0, 12, 0, 12)
+		SearchIcon.BackgroundTransparency = 1
+		local searchRes = gl("search")
+		SearchIcon.Image = searchRes.Image
+		SearchIcon.ImageRectSize = searchRes.ImageRectSize
+		SearchIcon.ImageRectOffset = searchRes.ImageRectPosition
+		SearchIcon.ImageColor3 = Color3.fromRGB(140, 142, 150)
+
+		SearchInput.Name = "SearchInput"
+		SearchInput.Parent = SearchBoxContainer
+		SearchInput.BackgroundTransparency = 1
+		SearchInput.Position = UDim2.new(0, 24, 0, 0)
+		SearchInput.Size = UDim2.new(1, -28, 1, 0)
+		SearchInput.Font = Enum.Font.Gotham
+		SearchInput.PlaceholderText = "Search files in folder..."
+		SearchInput.PlaceholderColor3 = Color3.fromRGB(110, 112, 120)
+		SearchInput.Text = ""
+		SearchInput.TextColor3 = Color3.fromRGB(225, 225, 230)
+		SearchInput.TextSize = 11
+		SearchInput.TextXAlignment = Enum.TextXAlignment.Left
+
+		FileListScroll.Name = "FileListScroll"
+		FileListScroll.Parent = BrowserSection
+		FileListScroll.Position = UDim2.new(0, 0, 0, 34)
+		FileListScroll.Size = UDim2.new(1, 0, 1, -38)
+		FileListScroll.BackgroundTransparency = 1
+		FileListScroll.BorderSizePixel = 0
+		FileListScroll.ScrollBarThickness = 3
+		FileListScroll.ScrollBarImageColor3 = Color3.fromRGB(100, 102, 112)
+		FileListScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+		FileListLayout.Parent = FileListScroll
+		FileListLayout.Padding = UDim.new(0, 2)
+		FileListLayout.SortOrder = Enum.SortOrder.Name
+
+		FileListPadding.Parent = FileListScroll
+		FileListPadding.PaddingLeft = UDim.new(0, 8)
+		FileListPadding.PaddingRight = UDim.new(0, 8)
+		FileListPadding.PaddingTop = UDim.new(0, 2)
+		FileListPadding.PaddingBottom = UDim.new(0, 4)
+
+		FileListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+			FileListScroll.CanvasSize = UDim2.new(0, 0, 0, FileListLayout.AbsoluteContentSize.Y + 6)
+		end)
+
+		-- Refresh File List in Browser
+		local function refreshFileList(filterQuery)
+			filterQuery = string.lower(filterQuery or "")
+			for _, item in ipairs(FileListScroll:GetChildren()) do
+				if item:IsA("Frame") or item:IsA("TextButton") then
+					item:Destroy()
+				end
+			end
+
+			local files = {}
+			if p.ExistingFiles and type(p.ExistingFiles) == "table" then
+				for _, f in ipairs(p.ExistingFiles) do table.insert(files, f) end
+			else
+				pcall(function()
+					if _listfiles then
+						local list = _listfiles(selectedFolder) or {}
+						for _, filePath in ipairs(list) do
+							local fname = filePath:match("([^/\\]+)$")
+							if fname then table.insert(files, fname) end
+						end
+					end
+				end)
+			end
+
+			local count = 0
+			for _, fname in ipairs(files) do
+				if filterQuery == "" or string.lower(fname):find(filterQuery, 1, true) then
+					count = count + 1
+					local row = Instance.new("TextButton")
+					local rowCorner = Instance.new("UICorner")
+					local rowIcon = Instance.new("ImageLabel")
+					local rowName = Instance.new("TextLabel")
+
+					row.Name = fname
+					row.Parent = FileListScroll
+					row.Size = UDim2.new(1, 0, 0, 24)
+					row.BackgroundColor3 = Color3.fromRGB(34, 35, 42)
+					row.BackgroundTransparency = 1
+					row.BorderSizePixel = 0
+					row.AutoButtonColor = false
+					row.Text = ""
+
+					rowCorner.CornerRadius = UDim.new(0, 4)
+					rowCorner.Parent = row
+
+					rowIcon.Name = "Icon"
+					rowIcon.Parent = row
+					rowIcon.Position = UDim2.new(0, 6, 0.5, -6)
+					rowIcon.Size = UDim2.new(0, 12, 0, 12)
+					rowIcon.BackgroundTransparency = 1
+					local fileRes = gl("file")
+					rowIcon.Image = fileRes.Image
+					rowIcon.ImageRectSize = fileRes.ImageRectSize
+					rowIcon.ImageRectOffset = fileRes.ImageRectPosition
+					rowIcon.ImageColor3 = Color3.fromRGB(150, 165, 195)
+
+					rowName.Name = "Name"
+					rowName.Parent = row
+					rowName.BackgroundTransparency = 1
+					rowName.Position = UDim2.new(0, 24, 0, 0)
+					rowName.Size = UDim2.new(1, -30, 1, 0)
+					rowName.Font = Enum.Font.Gotham
+					rowName.Text = fname
+					rowName.TextColor3 = Color3.fromRGB(220, 220, 225)
+					rowName.TextSize = 11
+					rowName.TextXAlignment = Enum.TextXAlignment.Left
+
+					row.MouseEnter:Connect(function()
+						tw({v = row, t = 0.15, s = Enum.EasingStyle.Quad, d = "Out", g = {BackgroundTransparency = 0.4}}):Play()
+					end)
+					row.MouseLeave:Connect(function()
+						tw({v = row, t = 0.15, s = Enum.EasingStyle.Quad, d = "Out", g = {BackgroundTransparency = 1}}):Play()
+					end)
+					row.MouseButton1Click:Connect(function()
+						local cleanBase = fname:gsub("%.%w+$", "")
+						NameTextBox.Text = cleanBase
+						tw({v = row, t = 0.1, s = Enum.EasingStyle.Quad, d = "Out", g = {BackgroundTransparency = 0.1}}):Play()
+						delay(0.15, function()
+							tw({v = row, t = 0.15, s = Enum.EasingStyle.Quad, d = "Out", g = {BackgroundTransparency = 1}}):Play()
+						end)
+					end)
+				end
+			end
+
+			if count == 0 then
+				local emptyLbl = Instance.new("TextLabel")
+				emptyLbl.Name = "EmptyLabel"
+				emptyLbl.Parent = FileListScroll
+				emptyLbl.BackgroundTransparency = 1
+				emptyLbl.Size = UDim2.new(1, 0, 0, 30)
+				emptyLbl.Font = Enum.Font.Gotham
+				emptyLbl.Text = (filterQuery == "" and "No files in " .. selectedFolder or "No matching files")
+				emptyLbl.TextColor3 = Color3.fromRGB(130, 130, 140)
+				emptyLbl.TextSize = 11
+				emptyLbl.TextXAlignment = Enum.TextXAlignment.Center
+			end
+		end
+
+		SearchInput:GetPropertyChangedSignal("Text"):Connect(function()
+			refreshFileList(SearchInput.Text)
+		end)
+
+		-- Bottom Section (Format Dropdown & Cancel / Save Buttons)
+		local BottomSection = Instance.new("Frame")
+		BottomSection.Name = "BottomSection"
+		BottomSection.Parent = PanelCard
+		BottomSection.AnchorPoint = Vector2.new(0, 1)
+		BottomSection.Position = UDim2.new(0, 18, 1, -14)
+		BottomSection.Size = UDim2.new(1, -36, 0, 30)
+		BottomSection.BackgroundTransparency = 1
+
+		-- Format Label & Button
+		local FormatContainer = Instance.new("Frame")
+		FormatContainer.Name = "FormatContainer"
+		FormatContainer.Parent = BottomSection
+		FormatContainer.BackgroundTransparency = 1
+		FormatContainer.Position = UDim2.new(0, 0, 0, 0)
+		FormatContainer.Size = UDim2.new(0, 170, 1, 0)
+
+		local FormatLabel = Instance.new("TextLabel")
+		FormatLabel.Name = "FormatLabel"
+		FormatLabel.Parent = FormatContainer
+		FormatLabel.BackgroundTransparency = 1
+		FormatLabel.Position = UDim2.new(0, 0, 0, 0)
+		FormatLabel.Size = UDim2.new(0, 52, 1, 0)
+		FormatLabel.Font = Enum.Font.GothamMedium
+		FormatLabel.Text = "Format:"
+		FormatLabel.TextColor3 = Color3.fromRGB(190, 192, 200)
+		FormatLabel.TextSize = 12
+		FormatLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+		local FormatBtn = Instance.new("TextButton")
+		local FormatCorner = Instance.new("UICorner")
+		local FormatStroke = Instance.new("UIStroke")
+		local FormatBtnLabel = Instance.new("TextLabel")
+		local FormatBtnCaret = Instance.new("TextLabel")
+
+		FormatBtn.Name = "FormatBtn"
+		FormatBtn.Parent = FormatContainer
+		FormatBtn.Position = UDim2.new(0, 56, 0, 1)
+		FormatBtn.Size = UDim2.new(1, -56, 0, 26)
+		FormatBtn.BackgroundColor3 = Color3.fromRGB(44, 46, 54)
+		FormatBtn.BorderSizePixel = 0
+		FormatBtn.AutoButtonColor = false
+		FormatBtn.Text = ""
+
+		FormatCorner.CornerRadius = UDim.new(0, 6)
+		FormatCorner.Parent = FormatBtn
+
+		FormatStroke.Color = Color3.fromRGB(255, 255, 255)
+		FormatStroke.Transparency = 0.86
+		FormatStroke.Thickness = 1
+		FormatStroke.Parent = FormatBtn
+
+		FormatBtnLabel.Name = "FormatBtnLabel"
+		FormatBtnLabel.Parent = FormatBtn
+		FormatBtnLabel.BackgroundTransparency = 1
+		FormatBtnLabel.Position = UDim2.new(0, 8, 0, 0)
+		FormatBtnLabel.Size = UDim2.new(1, -26, 1, 0)
+		FormatBtnLabel.Font = Enum.Font.GothamMedium
+		FormatBtnLabel.Text = getCleanFormatLabel(selectedFormat)
+		FormatBtnLabel.TextColor3 = Color3.fromRGB(235, 235, 240)
+		FormatBtnLabel.TextSize = 12
+		FormatBtnLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+		FormatBtnCaret.Name = "Caret"
+		FormatBtnCaret.Parent = FormatBtn
+		FormatBtnCaret.AnchorPoint = Vector2.new(1, 0.5)
+		FormatBtnCaret.Position = UDim2.new(1, -6, 0.5, 0)
+		FormatBtnCaret.Size = UDim2.new(0, 10, 1, 0)
+		FormatBtnCaret.BackgroundTransparency = 1
+		FormatBtnCaret.Font = Enum.Font.Gotham
+		FormatBtnCaret.Text = "▾"
+		FormatBtnCaret.TextColor3 = Color3.fromRGB(160, 160, 170)
+		FormatBtnCaret.TextSize = 11
+
+		-- Buttons: Cancel & Save
+		local ButtonGroup = Instance.new("Frame")
+		local ButtonLayout = Instance.new("UIListLayout")
+		local CancelBtn = Instance.new("TextButton")
+		local CancelCorner = Instance.new("UICorner")
+		local CancelStroke = Instance.new("UIStroke")
+		local SaveBtn = Instance.new("TextButton")
+		local SaveCorner = Instance.new("UICorner")
+
+		ButtonGroup.Name = "ButtonGroup"
+		ButtonGroup.Parent = BottomSection
+		ButtonGroup.AnchorPoint = Vector2.new(1, 0)
+		ButtonGroup.Position = UDim2.new(1, 0, 0, 0)
+		ButtonGroup.Size = UDim2.new(0, 160, 1, 0)
+		ButtonGroup.BackgroundTransparency = 1
+
+		ButtonLayout.Parent = ButtonGroup
+		ButtonLayout.FillDirection = Enum.FillDirection.Horizontal
+		ButtonLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+		ButtonLayout.Padding = UDim.new(0, 8)
+		ButtonLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		ButtonLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+
+		CancelBtn.Name = "CancelBtn"
+		CancelBtn.Parent = ButtonGroup
+		CancelBtn.LayoutOrder = 1
+		CancelBtn.Size = UDim2.new(0, 72, 0, 28)
+		CancelBtn.BackgroundColor3 = Color3.fromRGB(54, 55, 63)
+		CancelBtn.BorderSizePixel = 0
+		CancelBtn.AutoButtonColor = false
+		CancelBtn.Font = Enum.Font.GothamMedium
+		CancelBtn.Text = "Cancel"
+		CancelBtn.TextColor3 = Color3.fromRGB(225, 225, 230)
+		CancelBtn.TextSize = 12
+
+		CancelCorner.CornerRadius = UDim.new(0, 6)
+		CancelCorner.Parent = CancelBtn
+
+		CancelStroke.Color = Color3.fromRGB(255, 255, 255)
+		CancelStroke.Transparency = 0.88
+		CancelStroke.Thickness = 1
+		CancelStroke.Parent = CancelBtn
+
+		CancelBtn.MouseEnter:Connect(function()
+			tw({v = CancelBtn, t = 0.15, s = Enum.EasingStyle.Quad, d = "Out", g = {BackgroundColor3 = Color3.fromRGB(66, 68, 78)}}):Play()
+		end)
+		CancelBtn.MouseLeave:Connect(function()
+			tw({v = CancelBtn, t = 0.15, s = Enum.EasingStyle.Quad, d = "Out", g = {BackgroundColor3 = Color3.fromRGB(54, 55, 63)}}):Play()
+		end)
+
+		SaveBtn.Name = "SaveBtn"
+		SaveBtn.Parent = ButtonGroup
+		SaveBtn.LayoutOrder = 2
+		SaveBtn.Size = UDim2.new(0, 76, 0, 28)
+		SaveBtn.BackgroundColor3 = Color3.fromRGB(0, 122, 255)
+		SaveBtn.BorderSizePixel = 0
+		SaveBtn.AutoButtonColor = false
+		SaveBtn.Font = Enum.Font.GothamBold
+		SaveBtn.Text = "Save"
+		SaveBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		SaveBtn.TextSize = 12
+
+		SaveCorner.CornerRadius = UDim.new(0, 6)
+		SaveCorner.Parent = SaveBtn
+
+		SaveBtn.MouseEnter:Connect(function()
+			tw({v = SaveBtn, t = 0.15, s = Enum.EasingStyle.Quad, d = "Out", g = {BackgroundColor3 = Color3.fromRGB(26, 140, 255)}}):Play()
+		end)
+		SaveBtn.MouseLeave:Connect(function()
+			tw({v = SaveBtn, t = 0.15, s = Enum.EasingStyle.Quad, d = "Out", g = {BackgroundColor3 = Color3.fromRGB(0, 122, 255)}}):Play()
+		end)
+
+		-- Toggle Expand / Collapse
+		local function setExpanded(expanded)
+			isExpanded = expanded
+			local targetH = isExpanded and expandedH or compactH
+			tw({v = DisclosureChevron, t = 0.25, s = Enum.EasingStyle.Quad, d = "Out", g = {Rotation = isExpanded and 180 or 0}}):Play()
+			tw({v = PanelShadow, t = 0.25, s = Enum.EasingStyle.Exponential, d = "Out", g = {Size = UDim2.new(0, 420, 0, targetH + 20)}}):Play()
+			if isExpanded then
+				BrowserSection.Visible = true
+				refreshFileList(SearchInput.Text)
+			else
+				delay(0.2, function()
+					if not isExpanded then BrowserSection.Visible = false end
+				end)
+			end
+		end
+
+		DisclosureBtn.MouseButton1Click:Connect(function()
+			setExpanded(not isExpanded)
+		end)
+
+		-- Popover Menu Helper (For Format and Where selection)
+		local currentPopover = nil
+		local function closePopover()
+			if currentPopover then
+				currentPopover:Destroy()
+				currentPopover = nil
+			end
+		end
+
+		local function openPopover(parentBtn, items, onSelect)
+			closePopover()
+			local popover = Instance.new("Frame")
+			local popCorner = Instance.new("UICorner")
+			local popStroke = Instance.new("UIStroke")
+			local popLayout = Instance.new("UIListLayout")
+			local popPadding = Instance.new("UIPadding")
+
+			popover.Name = "PopoverMenu"
+			popover.Parent = PanelCard
+			popover.BackgroundColor3 = Color3.fromRGB(36, 38, 46)
+			popover.BorderSizePixel = 0
+			popover.ZIndex = 260
+			popover.Size = UDim2.new(0, parentBtn.AbsoluteSize.X, 0, #items * 26 + 10)
+
+			local parentPos = parentBtn.AbsolutePosition - PanelCard.AbsolutePosition
+			local yPos = parentPos.Y + parentBtn.AbsoluteSize.Y + 4
+			if yPos + popover.Size.Y.Offset > PanelCard.AbsoluteSize.Y then
+				yPos = parentPos.Y - popover.Size.Y.Offset - 4
+			end
+			popover.Position = UDim2.new(0, parentPos.X, 0, yPos)
+
+			popCorner.CornerRadius = UDim.new(0, 6)
+			popCorner.Parent = popover
+
+			popStroke.Color = Color3.fromRGB(255, 255, 255)
+			popStroke.Transparency = 0.85
+			popStroke.Thickness = 1
+			popStroke.Parent = popover
+
+			popLayout.Parent = popover
+			popLayout.Padding = UDim.new(0, 2)
+			popLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+			popPadding.Parent = popover
+			popPadding.PaddingTop = UDim.new(0, 4)
+			popPadding.PaddingBottom = UDim.new(0, 4)
+			popPadding.PaddingLeft = UDim.new(0, 4)
+			popPadding.PaddingRight = UDim.new(0, 4)
+
+			for idx, item in ipairs(items) do
+				local optBtn = Instance.new("TextButton")
+				local optCorner = Instance.new("UICorner")
+
+				optBtn.Name = "Option_" .. tostring(idx)
+				optBtn.Parent = popover
+				optBtn.Size = UDim2.new(1, 0, 0, 24)
+				optBtn.BackgroundColor3 = Color3.fromRGB(48, 50, 60)
+				optBtn.BackgroundTransparency = 1
+				optBtn.BorderSizePixel = 0
+				optBtn.AutoButtonColor = false
+				optBtn.Font = Enum.Font.GothamMedium
+				optBtn.Text = "  " .. tostring(item)
+				optBtn.TextColor3 = Color3.fromRGB(220, 220, 225)
+				optBtn.TextSize = 11
+				optBtn.TextXAlignment = Enum.TextXAlignment.Left
+
+				optCorner.CornerRadius = UDim.new(0, 4)
+				optCorner.Parent = optBtn
+
+				optBtn.MouseEnter:Connect(function()
+					tw({v = optBtn, t = 0.15, s = Enum.EasingStyle.Quad, d = "Out", g = {BackgroundTransparency = 0}}):Play()
+				end)
+				optBtn.MouseLeave:Connect(function()
+					tw({v = optBtn, t = 0.15, s = Enum.EasingStyle.Quad, d = "Out", g = {BackgroundTransparency = 1}}):Play()
+				end)
+				optBtn.MouseButton1Click:Connect(function()
+					closePopover()
+					onSelect(item)
+				end)
+			end
+			currentPopover = popover
+		end
+
+		WhereBtn.MouseButton1Click:Connect(function()
+			if #Folders > 1 then
+				openPopover(WhereBtn, Folders, function(folder)
+					selectedFolder = folder
+					WhereLabel.Text = folder
+					if isExpanded then refreshFileList(SearchInput.Text) end
+				end)
+			end
+		end)
+
+		FormatBtn.MouseButton1Click:Connect(function()
+			openPopover(FormatBtn, Formats, function(fmt)
+				selectedFormat = fmt
+				FormatBtnLabel.Text = getCleanFormatLabel(fmt)
+			end)
+		end)
+
+		-- Close animation helper
+		local isClosing = false
+		local function dismissModal(saved)
+			if isClosing then return end
+			isClosing = true
+			closePopover()
+			tw({v = SavePanelOverlay, t = 0.2, s = Enum.EasingStyle.Quad, d = "Out", g = {BackgroundTransparency = 1}}):Play()
+			local closeTw = tw({v = PanelCard, t = 0.2, s = Enum.EasingStyle.Quad, d = "Out", g = {GroupTransparency = 1}})
+			closeTw:Play()
+			closeTw.Completed:Connect(function()
+				SavePanelOverlay:Destroy()
+			end)
+		end
+
+		CancelBtn.MouseButton1Click:Connect(function()
+			pcall(OnCancel)
+			dismissModal(false)
+		end)
+
+		SaveBtn.MouseButton1Click:Connect(function()
+			local rawName = NameTextBox.Text
+			local cleanName = rawName:gsub("[%\\/%:%*%?%\"%<%>%|]", ""):gsub("^%s+", ""):gsub("%s+$", "")
+			if cleanName == "" then
+				-- Trigger shake / warning animation on input box
+				tw({v = InputStroke, t = 0.1, s = Enum.EasingStyle.Quad, d = "Out", g = {Color = Color3.fromRGB(255, 60, 60), Transparency = 0}}):Play()
+				local origPos = InputContainer.Position
+				tw({v = InputContainer, t = 0.05, s = Enum.EasingStyle.Sine, d = "InOut", g = {Position = origPos + UDim2.new(0, 4, 0, 0)}}):Play()
+				delay(0.05, function()
+					tw({v = InputContainer, t = 0.05, s = Enum.EasingStyle.Sine, d = "InOut", g = {Position = origPos - UDim2.new(0, 4, 0, 0)}}):Play()
+					delay(0.05, function()
+						tw({v = InputContainer, t = 0.05, s = Enum.EasingStyle.Sine, d = "InOut", g = {Position = origPos}}):Play()
+						delay(0.3, function()
+							tw({v = InputStroke, t = 0.2, s = Enum.EasingStyle.Quad, d = "Out", g = {Color = Color3.fromRGB(255, 255, 255), Transparency = 0.86}}):Play()
+						end)
+					end)
+				end)
+				return
+			end
+
+			-- Append extension if missing
+			local ext = getExtension(selectedFormat)
+			local finalFilename = cleanName
+			if not finalFilename:lower():find("%" .. ext:lower() .. "$") then
+				finalFilename = finalFilename .. ext
+			end
+
+			local fullPath = selectedFolder .. "/" .. finalFilename
+
+			-- Auto write to disk if enabled and supported
+			if AutoWrite and _writefile and DataToSave ~= nil then
+				pcall(function()
+					if _makefolder and _isfolder and not _isfolder(selectedFolder) then
+						_makefolder(selectedFolder)
+					end
+					local content = DataToSave
+					if type(content) == "table" then
+						local okJson, jsonStr = pcall(function() return _Services.HttpService:JSONEncode(content) end)
+						if okJson and jsonStr then content = jsonStr else content = tostring(content) end
+					end
+					_writefile(fullPath, tostring(content))
+				end)
+			end
+
+			-- Trigger success notification
+			pcall(function()
+				Tabs:Notify({
+					Title = "Saved Successfully",
+					Desc = finalFilename .. " saved to " .. selectedFolder,
+					Icon = "check",
+					Time = 3
+				})
+			end)
+
+			-- Invoke OnSave callback
+			pcall(function()
+				OnSave({
+					Name = finalFilename,
+					BaseName = cleanName,
+					Format = selectedFormat,
+					Extension = ext,
+					Folder = selectedFolder,
+					FullPath = fullPath,
+					Data = DataToSave
+				})
+			end)
+
+			dismissModal(true)
+		end)
+
+		-- Entrance animation
+		tw({v = SavePanelOverlay, t = 0.25, s = Enum.EasingStyle.Quad, d = "Out", g = {BackgroundTransparency = 0.5}}):Play()
+		tw({v = PanelCard, t = 0.25, s = Enum.EasingStyle.Quad, d = "Out", g = {GroupTransparency = 0}}):Play()
+		if isExpanded then
+			refreshFileList(SearchInput.Text)
+		end
+
+		return {
+			Overlay = SavePanelOverlay,
+			Card = PanelCard,
+			Close = function() dismissModal(false) end,
+			SetExpanded = setExpanded
+		}
+	end
+
+	Tabs.PromptSave = Tabs.SavePanel
+
 	do
 		local ReopenBreadcrumb, ReopenBreadcrumbEnabled -- เนเธซเนเธเธธเนเธก breadcrumb (CloseUIButton) เธเธนเธเธชเธ–เธฒเธเธฐเน€เธเธดเธ”/เธเธดเธ”เนเธ”เน
 		local Size_1 = Instance.new("TextButton")
@@ -6798,6 +7687,13 @@ function Library:Notify(p)
 	end
 end
 Library.Notification = Library.Notify
+
+function Library:SavePanel(p)
+	if Library._lastTabs and Library._lastTabs.SavePanel then
+		return Library._lastTabs:SavePanel(p)
+	end
+end
+Library.PromptSave = Library.SavePanel
 
 return Library
 

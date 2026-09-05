@@ -84,7 +84,7 @@ local function resolveLogo(url)
             end
         end
     end
-    return "rbxassetid://13857987062"
+    return "rbxassetid://136264753381080"
 end
 
 local PlaceId = game.PlaceId
@@ -94,8 +94,8 @@ local PlaceId = game.PlaceId
 -- ==============================================================================
 local Config = {
     BrandName = "Singularity Hub",
-    LogoAsset = "https://img2.pic.in.th/HYPER.png", -- HYPER Logo
-    FallbackLogo = "rbxassetid://112209635962758",
+    LogoAsset = "rbxassetid://136264753381080", -- HYPER Logo
+    FallbackLogo = "rbxassetid://136264753381080",
 
     -- PandaAuth Service API Configuration (pandauth.com)
     PandaServiceId = "0058594f-3409-4a86-975b-c988368434a9",
