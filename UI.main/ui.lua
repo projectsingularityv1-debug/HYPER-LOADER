@@ -1,4 +1,8 @@
----v2
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+--  Anti-Detection Bypass Layer (Dex-style)
+--  Randomized names, cloneref services, gethui/protectgui hiding
+-- โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+
 
 local _cloneref = (typeof(cloneref) == "function" and cloneref) or function(...) return ... end
 local _gethui = (typeof(gethui) == "function" and gethui) or (typeof(get_hidden_gui) == "function" and get_hidden_gui) or nil
@@ -7439,7 +7443,77 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 			HomeClick.ZIndex = 10
 			
 			local isBreadcrumbMini = false
+			local is360CenterMode = false
 			local updateCrumbSize
+			
+			local MoreBtn = Instance.new("ImageButton")
+			MoreBtn.Name = "MoreBtn_Special"
+			MoreBtn.Parent = Crumb_1
+			MoreBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			MoreBtn.BackgroundTransparency = 1
+			MoreBtn.Size = UDim2.new(0, 22, 0, 22)
+			local _layersIcon = gl("layers")
+			MoreBtn.Image = (_layersIcon and _layersIcon.Image ~= "") and _layersIcon.Image or "rbxassetid://10723424505"
+			MoreBtn.ImageRectSize = _layersIcon and _layersIcon.ImageRectSize or Vector2.new(0, 0)
+			MoreBtn.ImageRectOffset = (_layersIcon and (_layersIcon.ImageRectPosition or _layersIcon.ImageRectOffset)) or Vector2.new(0, 0)
+			MoreBtn.ImageColor3 = Color3.fromRGB(180, 195, 255)
+			MoreBtn.ZIndex = 50
+			MoreBtn.Visible = false
+			
+			local MoreBg = Instance.new("Frame")
+			MoreBg.Name = "IconBg_MoreBtn_Special"
+			MoreBg.AnchorPoint = Vector2.new(0.5, 0.5)
+			MoreBg.Position = UDim2.new(0.5, 0, 0.5, 0)
+			MoreBg.BackgroundColor3 = Color3.fromRGB(28, 28, 38)
+			MoreBg.ZIndex = 49
+			MoreBg.Visible = false
+			local MoreCorner = Instance.new("UICorner")
+			MoreCorner.CornerRadius = UDim.new(1, 0)
+			MoreCorner.Parent = MoreBg
+			local MoreStroke = Instance.new("UIStroke")
+			MoreStroke.Color = Color3.fromRGB(120, 140, 255)
+			MoreStroke.Transparency = 0.5
+			MoreStroke.Parent = MoreBg
+			MoreBg.Parent = Crumb_1
+			
+			MoreBtn.MouseEnter:Connect(function()
+				local text = (is360CenterMode or CrumbOrientation == "Center") and "ย่อกลับ (เมนูด้านล่าง)" or "เพิ่มเติม (360° ตรงกลาง)"
+				TooltipLabel.Text = text
+				local ts = _Services.TextService
+				local textBounds = ts:GetTextSize(text, 12, Enum.Font.GothamMedium, Vector2.new(1000, 24))
+				TooltipFrame.Size = UDim2.new(0, textBounds.X + 16, 0, 24)
+				
+				local absPos = MoreBtn.AbsolutePosition
+				local absSize = MoreBtn.AbsoluteSize
+				if is360CenterMode or CrumbOrientation == "Center" then
+					TooltipFrame.Position = UDim2.new(0, absPos.X + absSize.X/2, 0, absPos.Y + absSize.Y + 5)
+					TooltipFrame.AnchorPoint = Vector2.new(0.5, 0)
+				else
+					TooltipFrame.Position = UDim2.new(0, absPos.X + absSize.X/2, 0, absPos.Y - 5)
+					TooltipFrame.AnchorPoint = Vector2.new(0.5, 1)
+				end
+				
+				TooltipFrame.Visible = true
+				tw({v = TooltipFrame, t = 0.2, s = Enum.EasingStyle.Exponential, d = "Out", g = {BackgroundTransparency = 0}}):Play()
+				tw({v = TooltipLabel, t = 0.2, s = Enum.EasingStyle.Exponential, d = "Out", g = {TextTransparency = 0}}):Play()
+			end)
+			MoreBtn.MouseLeave:Connect(function()
+				tw({v = TooltipFrame, t = 0.2, s = Enum.EasingStyle.Exponential, d = "Out", g = {BackgroundTransparency = 1}}):Play()
+				tw({v = TooltipLabel, t = 0.2, s = Enum.EasingStyle.Exponential, d = "Out", g = {TextTransparency = 1}}):Play()
+			end)
+			
+			MoreBtn.MouseButton1Click:Connect(function()
+				is360CenterMode = not is360CenterMode
+				if is360CenterMode then
+					CloseUIShadow.AnchorPoint = Vector2.new(0.5, 0.5)
+					tw({v = CloseUIShadow, t = 0.4, s = Enum.EasingStyle.Back, d = "Out", g = {Position = UDim2.new(0.5, 0, 0.5, 0)}}):Play()
+				else
+					if Tabs.SetCrumbOrientation then
+						Tabs.SetCrumbOrientation(CrumbOrientation)
+					end
+				end
+				if updateCrumbSize then updateCrumbSize() end
+			end)
 			
 			local function toggleMini(force)
 				if force ~= nil then
@@ -7450,13 +7524,13 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 				
 				if currentClosedStyle == "Breadcrumb" then
 					for _, child in ipairs(Crumb_1:GetChildren()) do
-						if child.Name:match("^DockBtn_") then
+						if child.Name:match("^DockBtn_") or child.Name == "MoreBtn_Special" then
 							child.Visible = not isBreadcrumbMini
 						end
 					end
 				else
 					for _, child in ipairs(Crumb_1:GetChildren()) do
-						if child.Name:match("^DockBtn_") then
+						if child.Name:match("^DockBtn_") or child.Name == "MoreBtn_Special" then
 							child.Visible = true
 						end
 					end
@@ -7469,7 +7543,7 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 				task.defer(function()
 					local dockBtns = {}
 					for _, child in ipairs(Crumb_1:GetChildren()) do
-						if child.Name:match("^DockBtn_") then
+						if child.Name:match("^DockBtn_") and child.Name ~= "MoreBtn_Special" then
 							table.insert(dockBtns, child)
 						end
 					end
@@ -7477,10 +7551,13 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 					animGeneration = animGeneration + 1
 					local currentGen = animGeneration
 					
-					local easingStyle = currentClosedStyle == "Gooey plus menu" and Enum.EasingStyle.Back or Enum.EasingStyle.Exponential
-					local duration = currentClosedStyle == "Gooey plus menu" and 0.4 or 0.2
+					local isGooeyMode = currentClosedStyle == "Gooey plus menu" or currentClosedStyle == "Gooey 360° (Center)"
+					local is360 = isGooeyMode and (is360CenterMode or CrumbOrientation == "Center" or currentClosedStyle == "Gooey 360° (Center)")
 					
-					if currentClosedStyle == "Gooey plus menu" then
+					local easingStyle = isGooeyMode and Enum.EasingStyle.Back or Enum.EasingStyle.Exponential
+					local duration = isGooeyMode and 0.4 or 0.2
+					
+					if isGooeyMode then
 						UIListLayoutCrumb_1.Parent = nil
 						BackgroundCloseUI_1.ClipsDescendants = false
 						HomeBadge_1.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -7492,66 +7569,148 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 						UIPaddingCrumb_1.PaddingTop = UDim.new(0, 0)
 						UIPaddingCrumb_1.PaddingBottom = UDim.new(0, 0)
 						
-						local count = #dockBtns
-						local radius = 80
-						local anglePerItem = 40 -- Degrees between each item
-						local totalSpread = (count - 1) * anglePerItem
-						local maxSpread = 180
+						MoreBtn.Visible = true
+						MoreBg.Visible = true
 						
-						if totalSpread > maxSpread then
-							totalSpread = maxSpread
-							if count > 1 then
-								anglePerItem = maxSpread / (count - 1)
+						local allBtns = {}
+						for _, btn in ipairs(dockBtns) do
+							table.insert(allBtns, btn)
+						end
+						table.insert(allBtns, MoreBtn)
+						
+						for _, btn in ipairs(allBtns) do
+							btn.AnchorPoint = Vector2.new(0.5, 0.5)
+							local bg = btn.Parent:FindFirstChild("IconBg_" .. btn.Name)
+							if not bg then
+								bg = Instance.new("Frame")
+								bg.Name = "IconBg_" .. btn.Name
+								bg.AnchorPoint = Vector2.new(0.5, 0.5)
+								bg.Position = UDim2.new(0.5, 0, 0.5, 0)
+								bg.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+								bg.ZIndex = btn.ZIndex - 1
+								local corner = Instance.new("UICorner")
+								corner.CornerRadius = UDim.new(1, 0)
+								corner.Parent = bg
+								bg.Parent = btn.Parent
+								if addToTheme then addToTheme('Background', bg) end
+							end
+							if btn == MoreBtn then
+								bg.Visible = true
+							elseif btn.Image == "" or btn.Image == CacheImage("rbxassetid://0") then
+								bg.Visible = false
+							else
+								bg.Visible = true
 							end
 						end
 						
-						local baseAngle = 0
-						if CrumbOrientation == "Bottom" then baseAngle = 270
-						elseif CrumbOrientation == "Top" then baseAngle = 90
-						elseif CrumbOrientation == "Left" then baseAngle = 0
-						elseif CrumbOrientation == "Right" then baseAngle = 180
-						end
+						local shadowSpread = 200
 						
-						local actualStartAngle
-						local angleStep
-						if CrumbOrientation == "Bottom" or CrumbOrientation == "Left" then
-							actualStartAngle = baseAngle - (totalSpread / 2)
-							angleStep = anglePerItem
+						if is360 then
+							-- โหมด 360 องศาตรงกลางจอ และมีหลายชั้น (Concentric Rings)
+							local totalItems = #allBtns
+							local layers = {}
+							if totalItems <= 5 then
+								layers[1] = allBtns
+							elseif totalItems <= 10 then
+								local c1 = math.ceil(totalItems / 2)
+								local l1, l2 = {}, {}
+								for idx = 1, c1 do table.insert(l1, allBtns[idx]) end
+								for idx = c1 + 1, totalItems do table.insert(l2, allBtns[idx]) end
+								layers[1] = l1
+								layers[2] = l2
+							elseif totalItems <= 16 then
+								local c1 = math.min(6, math.ceil(totalItems * 0.45))
+								local l1, l2 = {}, {}
+								for idx = 1, c1 do table.insert(l1, allBtns[idx]) end
+								for idx = c1 + 1, totalItems do table.insert(l2, allBtns[idx]) end
+								layers[1] = l1
+								layers[2] = l2
+							else
+								local l1, l2, l3 = {}, {}, {}
+								for idx = 1, 5 do table.insert(l1, allBtns[idx]) end
+								for idx = 6, 13 do table.insert(l2, allBtns[idx]) end
+								for idx = 14, totalItems do table.insert(l3, allBtns[idx]) end
+								layers[1] = l1
+								layers[2] = l2
+								layers[3] = l3
+							end
+							
+							local maxR = (#layers >= 3 and 255) or (#layers == 2 and 180) or 105
+							shadowSpread = math.max(200, math.ceil((maxR + 40) * 2))
+							
+							local itemGlobalIdx = 0
+							for layerIdx, layerItems in ipairs(layers) do
+								local r = (layerIdx == 1 and 105) or (layerIdx == 2 and 180) or 255
+								local m = #layerItems
+								local step = 360 / m
+								local startAngle = (layerIdx == 1 and -90) or (layerIdx == 2 and (-90 + (180 / m))) or -90
+								
+								for itemIdx, btn in ipairs(layerItems) do
+									itemGlobalIdx = itemGlobalIdx + 1
+									local bg = btn.Parent:FindFirstChild("IconBg_" .. btn.Name)
+									local deg = startAngle + (itemIdx - 1) * step
+									local angle = math.rad(deg)
+									local offsetX = math.cos(angle) * r
+									local offsetY = math.sin(angle) * r
+									
+									local delayTime = not isBreadcrumbMini and (((layerIdx - 1) * 0.08) + ((itemIdx - 1) * 0.025)) or (0.015 * (totalItems - itemGlobalIdx))
+									
+									task.delay(delayTime, function()
+										if currentGen ~= animGeneration then return end
+										if not isBreadcrumbMini then
+											tw({v = btn, t = 0.5, s = Enum.EasingStyle.Back, d = "Out", g = {Position = UDim2.new(0.5, offsetX, 0.5, offsetY), Size = UDim2.new(0, 22, 0, 22), ImageTransparency = 0}}):Play()
+											tw({v = bg, t = 0.5, s = Enum.EasingStyle.Back, d = "Out", g = {Position = UDim2.new(0.5, offsetX, 0.5, offsetY), Size = UDim2.new(0, 38, 0, 38), BackgroundTransparency = 0}}):Play()
+										else
+											tw({v = btn, t = 0.3, s = Enum.EasingStyle.Quad, d = "Out", g = {Position = UDim2.new(0.5, 0, 0.5, 0), Size = UDim2.new(0, 0, 0, 0), ImageTransparency = 1}}):Play()
+											tw({v = bg, t = 0.3, s = Enum.EasingStyle.Quad, d = "Out", g = {Position = UDim2.new(0.5, 0, 0.5, 0), Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1}}):Play()
+										end
+									end)
+								end
+							end
 						else
-							actualStartAngle = baseAngle + (totalSpread / 2)
-							angleStep = -anglePerItem
-						end
-						
-						if count > 0 then
-							for i, btn in ipairs(dockBtns) do
-								btn.AnchorPoint = Vector2.new(0.5, 0.5)
-								
+							-- โหมดส่วนโค้งตามขอบจอ (เช่น Bottom / Top / Left / Right)
+							local count = #allBtns
+							local baseRadius = 140
+							local anglePerItem = 40
+							local totalSpread = (count - 1) * anglePerItem
+							local maxSpread = 180
+							
+							if totalSpread > maxSpread then
+								totalSpread = maxSpread
+								if count > 1 then
+									anglePerItem = maxSpread / (count - 1)
+								end
+							end
+							
+							local minCenterDist = 50
+							local halfAngleRad = math.rad(anglePerItem / 2)
+							local minRadius = (count > 1 and halfAngleRad > 0) and (minCenterDist / (2 * math.sin(halfAngleRad))) or baseRadius
+							local radius = math.max(baseRadius, math.ceil(minRadius))
+							shadowSpread = math.max(200, math.ceil((radius + 35) * 2))
+							
+							local baseAngle = 0
+							if CrumbOrientation == "Bottom" then baseAngle = 270
+							elseif CrumbOrientation == "Top" then baseAngle = 90
+							elseif CrumbOrientation == "Left" then baseAngle = 0
+							elseif CrumbOrientation == "Right" then baseAngle = 180
+							end
+							
+							local actualStartAngle
+							local angleStep
+							if CrumbOrientation == "Bottom" or CrumbOrientation == "Left" then
+								actualStartAngle = baseAngle - (totalSpread / 2)
+								angleStep = anglePerItem
+							else
+								actualStartAngle = baseAngle + (totalSpread / 2)
+								angleStep = -anglePerItem
+							end
+							
+							for i, btn in ipairs(allBtns) do
 								local bg = btn.Parent:FindFirstChild("IconBg_" .. btn.Name)
-								if not bg then
-									bg = Instance.new("Frame")
-									bg.Name = "IconBg_" .. btn.Name
-									bg.AnchorPoint = Vector2.new(0.5, 0.5)
-									bg.Position = UDim2.new(0.5, 0, 0.5, 0)
-									bg.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
-									bg.ZIndex = btn.ZIndex - 1
-									local corner = Instance.new("UICorner")
-									corner.CornerRadius = UDim.new(1, 0)
-									corner.Parent = bg
-									bg.Parent = btn.Parent
-									if addToTheme then addToTheme('Background', bg) end
-								end
-								
-								if btn.Image == "" or btn.Image == CacheImage("rbxassetid://0") then
-									bg.Visible = false
-								else
-									bg.Visible = true
-								end
-								
 								local delayTime = not isBreadcrumbMini and ((i - 1) * 0.025) or ((count - i) * 0.015)
 								
 								task.delay(delayTime, function()
 									if currentGen ~= animGeneration then return end
-									
 									if not isBreadcrumbMini then
 										local angleDeg = actualStartAngle + (i - 1) * angleStep
 										local angle = math.rad(angleDeg)
@@ -7569,7 +7728,12 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 						end
 						
 						if not isBreadcrumbMini then
-							tw({v = CloseUIShadow, t = duration, s = easingStyle, d = "Out", g = {Size = UDim2.new(0, 200, 0, 200)}}):Play()
+							if is360 then
+								CloseUIShadow.AnchorPoint = Vector2.new(0.5, 0.5)
+								tw({v = CloseUIShadow, t = duration, s = easingStyle, d = "Out", g = {Position = UDim2.new(0.5, 0, 0.5, 0), Size = UDim2.new(0, shadowSpread, 0, shadowSpread)}}):Play()
+							else
+								tw({v = CloseUIShadow, t = duration, s = easingStyle, d = "Out", g = {Size = UDim2.new(0, shadowSpread, 0, shadowSpread)}}):Play()
+							end
 							tw({v = HomeIcon_1, t = duration, s = easingStyle, d = "Out", g = {Size = UDim2.new(0, 32, 0, 32)}}):Play()
 							tw({v = HomeBadge_1, t = duration, s = easingStyle, d = "Out", g = {Size = UDim2.new(0, 38, 0, 38)}}):Play()
 						else
@@ -7589,6 +7753,8 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 						tw({v = HomeIcon_1, t = duration, s = easingStyle, d = "Out", g = {Size = UDim2.new(0, 26, 0, 26)}}):Play()
 						tw({v = HomeBadge_1, t = duration, s = easingStyle, d = "Out", g = {Size = UDim2.new(0, 32, 0, 32)}}):Play()
 						
+						MoreBtn.Visible = false
+						if MoreBg then MoreBg.Visible = false end
 						for _, btn in ipairs(dockBtns) do
 							btn.AnchorPoint = Vector2.new(0, 0)
 							btn.Size = UDim2.new(0, 24, 0, 24)
@@ -7623,21 +7789,30 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 			Tabs.SetCrumbOrientation = function(pos)
 				CrumbOrientation = pos
 				if pos == "Bottom" then
+					is360CenterMode = false
 					CloseUIShadow.AnchorPoint = Vector2.new(0.5, 1)
 					tw({v = CloseUIShadow, t = 0.3, s = Enum.EasingStyle.Exponential, d = "Out", g = {Position = UDim2.new(0.5, 0, 0.98, 0)}}):Play()
 					UIListLayoutCrumb_1.FillDirection = Enum.FillDirection.Horizontal
 				elseif pos == "Top" then
+					is360CenterMode = false
 					CloseUIShadow.AnchorPoint = Vector2.new(0.5, 0)
 					tw({v = CloseUIShadow, t = 0.3, s = Enum.EasingStyle.Exponential, d = "Out", g = {Position = UDim2.new(0.5, 0, 0, 2)}}):Play()
 					UIListLayoutCrumb_1.FillDirection = Enum.FillDirection.Horizontal
 				elseif pos == "Left" then
+					is360CenterMode = false
 					CloseUIShadow.AnchorPoint = Vector2.new(0, 0.5)
 					tw({v = CloseUIShadow, t = 0.3, s = Enum.EasingStyle.Exponential, d = "Out", g = {Position = UDim2.new(0.02, 0, 0.5, 0)}}):Play()
 					UIListLayoutCrumb_1.FillDirection = Enum.FillDirection.Vertical
 				elseif pos == "Right" then
+					is360CenterMode = false
 					CloseUIShadow.AnchorPoint = Vector2.new(1, 0.5)
 					tw({v = CloseUIShadow, t = 0.3, s = Enum.EasingStyle.Exponential, d = "Out", g = {Position = UDim2.new(0.98, 0, 0.5, 0)}}):Play()
 					UIListLayoutCrumb_1.FillDirection = Enum.FillDirection.Vertical
+				elseif pos == "Center" then
+					is360CenterMode = true
+					CloseUIShadow.AnchorPoint = Vector2.new(0.5, 0.5)
+					tw({v = CloseUIShadow, t = 0.3, s = Enum.EasingStyle.Exponential, d = "Out", g = {Position = UDim2.new(0.5, 0, 0.5, 0)}}):Play()
+					UIListLayoutCrumb_1.FillDirection = Enum.FillDirection.Horizontal
 				end
 				updateCrumbSize()
 			end
@@ -7651,13 +7826,15 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 			end)
 			
 			CloseUIShadow.MouseEnter:Connect(function()
-				if currentClosedStyle == "Gooey plus menu" then
+				local isGooeyMode = currentClosedStyle == "Gooey plus menu" or currentClosedStyle == "Gooey 360° (Center)"
+				if isGooeyMode or is360CenterMode then
 					toggleMini(false) -- Expand
 				end
 			end)
 			
 			CloseUIShadow.MouseLeave:Connect(function()
-				if currentClosedStyle == "Gooey plus menu" then
+				local isGooeyMode = currentClosedStyle == "Gooey plus menu" or currentClosedStyle == "Gooey 360° (Center)"
+				if isGooeyMode or is360CenterMode then
 					toggleMini(true) -- Collapse
 				end
 			end)
@@ -7668,12 +7845,22 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 
 			Tabs.SetClosedUIStyle = function(style)
 				currentClosedStyle = style
-				if style == "Gooey plus menu" then
+				if style == "Gooey plus menu" or style == "Gooey 360° (Center)" then
 					CloseUIShadow.ImageTransparency = 1
+					if style == "Gooey 360° (Center)" then
+						is360CenterMode = true
+						CloseUIShadow.AnchorPoint = Vector2.new(0.5, 0.5)
+						tw({v = CloseUIShadow, t = 0.3, s = Enum.EasingStyle.Exponential, d = "Out", g = {Position = UDim2.new(0.5, 0, 0.5, 0)}}):Play()
+					else
+						is360CenterMode = false
+						if Tabs.SetCrumbOrientation then Tabs.SetCrumbOrientation(CrumbOrientation) end
+					end
 					toggleMini(true)
 				else
+					is360CenterMode = false
 					CloseUIShadow.ImageTransparency = 0.5
 				end
+				updateCrumbSize()
 			end
 		end
 	end
@@ -7772,7 +7959,7 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 		SettingsTab:Dropdown({
 			Title = "Closed UI Style",
 			Desc = "Select the style of the minimized UI",
-			List = {"Breadcrumb", "Gooey plus menu"},
+			List = {"Breadcrumb", "Gooey plus menu", "Gooey 360° (Center)"},
 			Value = "Breadcrumb",
 			Callback = function(style)
 				if Tabs.SetClosedUIStyle then
@@ -7784,7 +7971,7 @@ Notification.BorderColor3 = Color3.fromRGB(0,0,0)
 		SettingsTab:Dropdown({
 			Title = "Breadcrumb Position",
 			Desc = "Change where the closed UI tab is placed",
-			List = {"Bottom", "Top", "Left", "Right"},
+			List = {"Bottom", "Top", "Left", "Right", "Center"},
 			Value = "Bottom",
 			Callback = function(pos)
 				if Tabs.SetCrumbOrientation then

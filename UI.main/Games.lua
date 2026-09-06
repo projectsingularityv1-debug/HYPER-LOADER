@@ -50,7 +50,7 @@ return {
     },
     ["BasketballZero"] = {
         RequiresKey = false, 
-        PlaceIds = { 129230994638464, 130739873848552 },
+        PlaceIds = { 129230994638464,130739873848552},
         Local = "Scripts/Basketball_XINZ.lua",
         Remote = "https://projectsingularity.online/raw/repos/191c9695-c9f9-4b5f-805f-d87e8e3b8fac/Basketball_XINZ.lua"
     }
