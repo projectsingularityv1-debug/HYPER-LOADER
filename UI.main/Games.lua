@@ -55,7 +55,7 @@ return {
         Remote = "https://projectsingularity.online/raw/repos/191c9695-c9f9-4b5f-805f-d87e8e3b8fac/Basketball_XINZ.lua"
     },
     ["Universal"] = {
-        RequiresKey = false,
+        RequiresKey = true,
         PlaceIds = {},
         Local = "Scripts/UI.main/UITest.lua",
         Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-LOADER/refs/heads/main/UI.main/UITest.lua"
