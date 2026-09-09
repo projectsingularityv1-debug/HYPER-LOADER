@@ -53,5 +53,11 @@ return {
         PlaceIds = { 129230994638464,130739873848552},
         Local = "Scripts/Basketball_XINZ.lua",
         Remote = "https://projectsingularity.online/raw/repos/191c9695-c9f9-4b5f-805f-d87e8e3b8fac/Basketball_XINZ.lua"
+    },
+    ["Universal"] = {
+        RequiresKey = false,
+        PlaceIds = {},
+        Local = "Scripts/UI.main/UITest.lua",
+        Remote = "https://raw.githubusercontent.com/projectsingularityv1-debug/HYPER-LOADER/refs/heads/main/UI.main/UITest.lua"
     }
 }
